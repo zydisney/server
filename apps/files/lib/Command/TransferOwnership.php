@@ -107,6 +107,11 @@ class TransferOwnership extends Command {
 				InputOption::VALUE_REQUIRED,
 				'selectively provide the path to transfer. For example --path="folder_name"',
 				''
+			)->addOption(
+				'move',
+				null,
+				InputOption::VALUE_NONE,
+				'move data from source user to root directory of destination user, which must be empty'
 			);
 	}
 
@@ -135,8 +140,13 @@ class TransferOwnership extends Command {
 			return 2;
 		}
 
-		$date = date('Y-m-d H-i-s');
-		$this->finalTarget = "$this->destinationUser/files/transferred from $this->sourceUser on $date";
+		$move = $input->getOption('move') === true;
+		if ($move) {
+			$this->finalTarget = "$destinationUid/files/";
+		} else {
+			$date = date('Y-m-d H-i-s');
+			$this->finalTarget = "$destinationUid/files/transferred from $sourceUid on $date";
+		}
 
 		// setup filesystem
 		Filesystem::initMountPoints($this->sourceUser);
@@ -145,6 +155,11 @@ class TransferOwnership extends Command {
 		$view = new View();
 		if (!$view->is_dir($this->sourcePath)) {
 			$output->writeln("<error>Unknown path provided: $sourcePathOption</error>");
+			return 1;
+		}
+
+		if ($move && (!$view->is_dir($this->finalTarget) || count($view->getDirectoryContent($this->finalTarget)) > 0)) {
+			$output->writeln("<error>Destination path does not exists or is not empty</error>");
 			return 1;
 		}
 

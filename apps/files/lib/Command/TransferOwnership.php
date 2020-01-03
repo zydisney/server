@@ -135,7 +135,7 @@ class TransferOwnership extends Command {
 		$this->sourcePath = rtrim($this->sourceUser . '/files/' . $sourcePathOption, '/');
 
 		// target user has to be ready
-		if (!\OC::$server->getEncryptionManager()->isReadyForUser($this->destinationUser)) {
+		if ($destinationUserObject->getLastLogin() === 0 || !\OC::$server->getEncryptionManager()->isReadyForUser($this->destinationUser)) {
 			$output->writeln("<error>The target user is not ready to accept files. The user has at least to be logged in once.</error>");
 			return 2;
 		}

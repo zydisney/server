@@ -56,6 +56,8 @@ class Application {
 	private $logger;
 	/** @var MemoryInfo */
 	private $memoryInfo;
+	/** @var array  */
+	private $commandFactories = [];
 
 	/**
 	 * @param IConfig $config
@@ -156,6 +158,9 @@ class Application {
 			}
 		}
 
+		$consoleCommandLoader = new ConsoleCommandLoader($this->commandFactories);
+		$this->application->setCommandLoader($consoleCommandLoader);
+
 		if ($input->getFirstArgument() !== 'check') {
 			$errors = \OC_Util::checkServer(\OC::$server->getSystemConfig());
 			if (!empty($errors)) {
@@ -216,6 +221,11 @@ class Application {
 
 	private function loadCommandsFromInfoXml($commands) {
 		foreach ($commands as $command) {
+			if (defined("$command::NAME")) {
+				$this->commandFactories[constant("$command::NAME")] = $command;
+				continue;
+			}
+
 			try {
 				$c = \OC::$server->query($command);
 			} catch (QueryException $e) {

@@ -41,6 +41,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class ListCalendars extends Command {
+	public const NAME = 'dav:list-calendars';
 
 	/** @var IUserManager */
 	protected $userManager;
@@ -60,7 +61,7 @@ class ListCalendars extends Command {
 
 	protected function configure() {
 		$this
-			->setName('dav:list-calendars')
+			->setName(self::NAME)
 			->setDescription('List all calendars of a user')
 			->addArgument('uid',
 				InputArgument::REQUIRED,

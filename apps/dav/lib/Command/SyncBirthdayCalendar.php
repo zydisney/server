@@ -37,6 +37,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class SyncBirthdayCalendar extends Command {
+	public const NAME = 'dav:sync-birthday-calendar';
 
 	/** @var BirthdayService */
 	private $birthdayService;
@@ -62,7 +63,7 @@ class SyncBirthdayCalendar extends Command {
 
 	protected function configure() {
 		$this
-			->setName('dav:sync-birthday-calendar')
+			->setName(self::NAME)
 			->setDescription('Synchronizes the birthday calendar')
 			->addArgument('user',
 				InputArgument::OPTIONAL,

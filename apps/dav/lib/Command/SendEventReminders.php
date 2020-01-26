@@ -36,6 +36,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  * @package OCA\DAV\Command
  */
 class SendEventReminders extends Command {
+	public const NAME = 'dav:send-event-reminders';
 
 	/** @var ReminderService */
 	protected $reminderService;
@@ -59,7 +60,7 @@ class SendEventReminders extends Command {
 	 */
 	protected function configure():void {
 		$this
-			->setName('dav:send-event-reminders')
+			->setName(self::NAME)
 			->setDescription('Sends event reminders');
 	}
 

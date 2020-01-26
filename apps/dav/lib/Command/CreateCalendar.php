@@ -38,6 +38,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class CreateCalendar extends Command {
+	public const NAME = 'dav:create-calendar';
 
 	/** @var IUserManager */
 	protected $userManager;
@@ -62,7 +63,7 @@ class CreateCalendar extends Command {
 
 	protected function configure() {
 		$this
-			->setName('dav:create-calendar')
+			->setName(self::NAME)
 			->setDescription('Create a dav calendar')
 			->addArgument('user',
 				InputArgument::REQUIRED,

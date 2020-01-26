@@ -32,6 +32,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class CreateAddressBook extends Command {
+	public const NAME = 'dav:create-addressbook';
 
 	/** @var IUserManager */
 	private $userManager;
@@ -53,7 +54,7 @@ class CreateAddressBook extends Command {
 
 	protected function configure() {
 		$this
-				->setName('dav:create-addressbook')
+				->setName(self::NAME)
 				->setDescription('Create a dav addressbook')
 				->addArgument('user',
 						InputArgument::REQUIRED,

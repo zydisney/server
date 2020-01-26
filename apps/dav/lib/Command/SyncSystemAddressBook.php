@@ -30,6 +30,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class SyncSystemAddressBook extends Command {
+	public const NAME = 'dav:sync-system-addressbook';
 
 	/** @var SyncService */
 	private $syncService;
@@ -44,7 +45,7 @@ class SyncSystemAddressBook extends Command {
 
 	protected function configure() {
 		$this
-			->setName('dav:sync-system-addressbook')
+			->setName(self::NAME)
 			->setDescription('Synchronizes users to the system addressbook');
 	}
 

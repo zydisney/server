@@ -36,6 +36,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  * have no matching principal. Happened because of a bug in the calendar app.
  */
 class RemoveInvalidShares extends Command {
+	public const NAME = 'dav:remove-invalid-shares';
 
 	/** @var IDBConnection */
 	private $connection;
@@ -52,7 +53,7 @@ class RemoveInvalidShares extends Command {
 
 	protected function configure() {
 		$this
-			->setName('dav:remove-invalid-shares')
+			->setName(self::NAME)
 			->setDescription('Remove invalid dav shares');
 	}
 

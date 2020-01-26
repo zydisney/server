@@ -29,10 +29,11 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class Export extends ListCommand {
+	public const NAME = 'files_external:export';
 
 	protected function configure() {
 		$this
-			->setName('files_external:export')
+			->setName(self::NAME)
 			->setDescription('Export mount configurations')
 			->addArgument(
 				'user_id',

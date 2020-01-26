@@ -38,6 +38,8 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class ListCommand extends Base {
+	public const NAME = 'files_external:list';
+
 	/**
 	 * @var GlobalStoragesService
 	 */
@@ -70,7 +72,7 @@ class ListCommand extends Base {
 
 	protected function configure() {
 		$this
-			->setName('files_external:list')
+			->setName(self::NAME)
 			->setDescription('List configured admin or personal mounts')
 			->addArgument(
 				'user_id',

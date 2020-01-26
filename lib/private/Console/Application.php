@@ -117,6 +117,8 @@ class Application {
 			);
 		}
 
+		$coreCommandFactories = [];
+
 		try {
 			require_once __DIR__ . '/../../../core/register_command.php';
 			if ($this->config->getSystemValue('installed', false)) {
@@ -158,7 +160,7 @@ class Application {
 			}
 		}
 
-		$consoleCommandLoader = new ConsoleCommandLoader($this->commandFactories);
+		$consoleCommandLoader = new ConsoleCommandLoader(array_merge($coreCommandFactories, $this->commandFactories));
 		$this->application->setCommandLoader($consoleCommandLoader);
 
 		if ($input->getFirstArgument() !== 'check') {

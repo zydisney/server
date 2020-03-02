@@ -41,6 +41,9 @@ class LockedException extends \Exception {
 	 */
 	private $path;
 
+	/** @var string|null */
+	private $existingLock;
+
 	/**
 	 * LockedException constructor.
 	 *
@@ -51,6 +54,7 @@ class LockedException extends \Exception {
 	 */
 	public function __construct(string $path, \Exception $previous = null, string $existingLock = null) {
 		$message = '"' . $path . '" is locked';
+		$this->existingLock = $existingLock;
 		if ($existingLock) {
 			$message .= ', existing lock on file: ' . $existingLock;
 		}
@@ -64,5 +68,13 @@ class LockedException extends \Exception {
 	 */
 	public function getPath(): string {
 		return $this->path;
+	}
+
+	/**
+	 * @return string
+	 * @since 19.0.0
+	 */
+	public function getExistingLock(): ?string {
+		return $this->existingLock;
 	}
 }

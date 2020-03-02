@@ -1944,7 +1944,8 @@ class View {
 				// rethrow with the a human-readable path
 				throw new \OCP\Lock\LockedException(
 					$this->getPathRelativeToFiles($absolutePath),
-					$e
+					$e,
+					$e->getExistingLock()
 				);
 			}
 		}
@@ -1986,12 +1987,14 @@ class View {
 					// rethrow with the a human-readable path
 					throw new \OCP\Lock\LockedException(
 						$this->getPathRelativeToFiles($absolutePath),
-						$e
+						$e,
+						$e->getExistingLock()
 					);
-				} catch (\InvalidArgumentException $e) {
+				} catch (\InvalidArgumentException $ex) {
 					throw new \OCP\Lock\LockedException(
 						$absolutePath,
-						$e
+						$ex,
+						$e->getExistingLock()
 					);
 				}
 			}

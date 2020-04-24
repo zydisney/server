@@ -48,7 +48,14 @@ class SearchController extends Controller {
 	 * @NoAdminRequired
 	 */
 	public function search(string $query, array $inApps = [], int $page = 1, int $size = 30): JSONResponse {
+		/** @var \OCP\Search\Result[] $results */
 		$results = $this->searcher->searchPaged($query, $inApps, $page, $size);
+
+		foreach ($results as $result) {
+			if (!mb_check_encoding($result->name, 'utf8') || !mb_check_encoding($result->link, 'utf8')) {
+				throw new \Exception("Search result contains non utf8 data: " . $result->name);
+			}
+		}
 
 		return new JSONResponse($results);
 	}

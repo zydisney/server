@@ -126,6 +126,10 @@ class Storage extends Wrapper {
 	 * @return bool
 	 */
 	protected function shouldMoveToTrash($path) {
+		if (substr($path, -4) === '.lck') {
+			return false;
+		}
+
 		$normalized = Filesystem::normalizePath($this->mountPoint . '/' . $path);
 		$parts = explode('/', $normalized);
 		if (count($parts) < 4) {

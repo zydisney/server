@@ -21,7 +21,6 @@
 
 import _ from 'underscore'
 import $ from 'jquery'
-import moment from 'moment'
 
 import OC from './index'
 
@@ -35,12 +34,12 @@ export default {
 
 	init: function() {
 		$('.password-confirm-required').on('click', _.bind(this.requirePasswordConfirmation, this))
-		this.pageLoadTime = moment.now()
+		this.pageLoadTime = Date.now()
 	},
 
 	requiresPasswordConfirmation: function() {
 		const serverTimeDiff = this.pageLoadTime - (window.nc_pageLoad * 1000)
-		const timeSinceLogin = moment.now() - (serverTimeDiff + (window.nc_lastLogin * 1000))
+		const timeSinceLogin = Date.now() - (serverTimeDiff + (window.nc_lastLogin * 1000))
 
 		// if timeSinceLogin > 30 minutes and user backend allows password confirmation
 		return (window.backendAllowsPasswordConfirmation && timeSinceLogin > 30 * 60 * 1000)

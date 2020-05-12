@@ -22,28 +22,28 @@ declare(strict_types=1);
  *
  */
 
-namespace OCP\AppFramework\Services;
+namespace OCP\Push;
 
 /**
- * Push helper for your Nextcloud apps
- *
  * @since 20.0.0
  */
-interface IPush {
+interface IManager {
 
 	/**
-	 * Get if there is a backend to handle push at all
+	 * Get weather push is enabled or not
 	 *
 	 * @return bool
+	 *
+	 * @since 20.0.0
 	 */
 	public function hasPush(): bool;
 
 	/**
-	 * Publish the data to the app topic.
-	 * The app topic will be APPID/$topid
+	 * Register an access validator
 	 *
-	 * @param string $topic
-	 * @param \JsonSerializable $data
+	 * @param string $service
+	 *
+	 * @since 20.0.0
 	 */
-	public function publish(string $topic, \JsonSerializable $data): void;
+	public function registerAccesValidator(string $appId, string $service): void;
 }

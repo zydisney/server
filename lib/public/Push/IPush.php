@@ -22,28 +22,21 @@ declare(strict_types=1);
  *
  */
 
-namespace OCP\AppFramework\Services;
+namespace OCP\Push;
 
 /**
- * Push helper for your Nextcloud apps
- *
  * @since 20.0.0
  */
 interface IPush {
 
 	/**
-	 * Get if there is a backend to handle push at all
+	 * Publish the $payload to $appId/$topic
 	 *
-	 * @return bool
-	 */
-	public function hasPush(): bool;
-
-	/**
-	 * Publish the data to the app topic.
-	 * The app topic will be APPID/$topid
-	 *
+	 * @param string $appId
 	 * @param string $topic
-	 * @param \JsonSerializable $data
+	 * @param \JsonSerializable $payload
+	 *
+	 * @since 20.0.0
 	 */
-	public function publish(string $topic, \JsonSerializable $data): void;
+	public function push(string $appId, string $topic, \JsonSerializable $payload): void;
 }

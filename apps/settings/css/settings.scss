@@ -1577,7 +1577,7 @@ doesnotexist:-o-prefocus, .strengthify-wrapper {
 			> form {
 				grid-row: 1;
 				display: inline-flex;
-				color: var(--color-text-lighter);
+				color: var(--color-text-maxcontrast);
 				flex-grow: 1;
 
 				> input:not(:focus):not(:active) {

@@ -257,7 +257,7 @@ input.primary,
 		&.primary:not(:disabled) {
 			background-color: var(--color-background-dark);
 			color: var(--color-main-text);
-			border-color: var(--color-text-lighter);
+			border-color: var(--color-text-maxcontrast);
 
 			&:hover, &:focus, &:active {
 				background-color: var(--color-background-darker);

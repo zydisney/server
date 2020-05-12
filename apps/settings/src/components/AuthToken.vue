@@ -285,7 +285,7 @@ export default {
 			}
 		}
 		&.token-name .wiping-warning {
-			color: var(--color-text-lighter);
+			color: var(--color-text-maxcontrast);
 		}
 
 		&.more {

@@ -34,12 +34,6 @@ div[contenteditable=false] {
 	box-sizing: border-box;
 }
 
-/**
- * color-text-lighter		normal state
- * color-text-lighter		active state
- * color-text-maxcontrast 	disabled state
- */
-
 /* Default global values */
 div.select2-drop .select2-search input, // TODO: REMOVE WHEN DROPPING SELECT2
 select,
@@ -68,7 +62,7 @@ div[contenteditable=true],
 		&:active {
 			outline: none;
 			background-color: var(--color-main-background);
-			color: var(--color-text-light);
+			color: var(--color-main-text);
 		}
 	}
 	&:disabled {
@@ -122,13 +116,13 @@ div[contenteditable=false] {
 	padding: 7px 6px;
 	font-size: 13px;
 	background-color: var(--color-main-background);
-	color: var(--color-text-lighter);
+	color: var(--color-text-maxcontrast);
 	border: 1px solid var(--color-background-darker);
 	outline: none;
 	border-radius: var(--border-radius);
 
 	background-color: var(--color-background-dark);
-	color: var(--color-text-lighter);
+	color: var(--color-text-maxcontrast);
 	cursor: default;
 	opacity: 0.5;
 }
@@ -243,7 +237,7 @@ textarea, div[contenteditable=true] {
 }
 
 div[contenteditable=false] {
-	color: var(--color-text-lighter);
+	color: var(--color-text-maxcontrast);
 	font-family: inherit;
 	height: auto;
 }
@@ -489,7 +483,7 @@ div.select2-drop {
 			padding: 12px;
 			background-color: transparent;
 			cursor: pointer;
-			color: var(--color-text-lighter);
+			color: var(--color-text-maxcontrast);
 		}
 		.select2-result {
 			&.select2-selected {
@@ -516,7 +510,7 @@ div.select2-container-multi {
 		white-space: nowrap;
 		text-overflow: ellipsis;
 		background: var(--color-main-background);
-		color: var(--color-text-lighter) !important;
+		color: var(--color-text-maxcontrast) !important;
 		box-sizing: content-box;
 		border-radius: var(--border-radius);
 		border: 1px solid var(--color-border-dark);
@@ -532,7 +526,7 @@ div.select2-container-multi {
 			& {
 				background-image: none;
 				background-color: var(--color-main-background);
-				color: var(--color-text-lighter);
+				color: var(--color-text-maxcontrast);
 				border: 1px solid var(--color-border-dark);
 			}
 			.select2-search-choice-close {
@@ -561,7 +555,7 @@ div.select2-container {
 		white-space: nowrap;
 		text-overflow: ellipsis;
 		background: var(--color-main-background);
-		color: var(--color-text-lighter) !important;
+		color: var(--color-text-maxcontrast) !important;
 		box-sizing: content-box;
 		border-radius: var(--border-radius);
 		border: 1px solid var(--color-border-dark);
@@ -616,7 +610,7 @@ div.select2-container {
 			padding-left: 5px;
 			background-image: none;
 			background-color: var(--color-main-background);
-			color: var(--color-text-lighter);
+			color: var(--color-text-maxcontrast);
 			border: 1px solid var(--color-border-dark);
 			display: inline-flex;
 			align-items: center;
@@ -633,7 +627,7 @@ div.select2-container {
 			display: list-item;
 			background-color: transparent;
 			cursor: pointer;
-			color: var(--color-text-lighter);
+			color: var(--color-text-maxcontrast);
 			a {
 				white-space: nowrap;
 				overflow: hidden;
@@ -735,7 +729,7 @@ div.select2-container {
 				line-height: 20px;
 				padding: 1px 5px;
 				background-image: none;
-				color: var(--color-text-lighter);
+				color: var(--color-text-maxcontrast);
 				border: 1px solid var(--color-border-dark);
 				display: inline-flex;
 				align-items: center;
@@ -777,7 +771,7 @@ div.select2-container {
 		.multiselect__limit {
 			flex: 0 0 auto;
 			line-height: 20px;
-			color: var(--color-text-lighter);
+			color: var(--color-text-maxcontrast);
 			display: inline-flex;
 			align-items: center;
 			opacity: .7;
@@ -839,7 +833,7 @@ div.select2-container {
 				display: inline-flex;
 				align-items: center;
 				background-color: transparent !important;
-				color: var(--color-text-lighter);
+				color: var(--color-text-maxcontrast);
 				width: 100%;
 				/* selected checkmark icon */
 				&::before {

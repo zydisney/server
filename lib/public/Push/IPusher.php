@@ -24,35 +24,12 @@ declare(strict_types=1);
 
 namespace OCP\Push;
 
-/**
- * @since 20.0.0
- */
-interface IManager {
+interface IPusher {
+	public function push(string $appId, string $topic, \JsonSerializable $payload): void;
 
-	/**
-	 * Get weather push is enabled or not
-	 *
-	 * @return bool
-	 *
-	 * @since 20.0.0
-	 */
-	public function hasPush(): bool;
+	public function generateJWT(string $appId, string $topic): string;
 
-	/**
-	 * Register an access validator
-	 *
-	 * @param string $appId
-	 * @param string $service
-	 *
-	 * @since 20.0.0
-	 */
-	public function registerAccesValidator(string $appId, string $service): void;
+	public function registerAccessValidator(string $appId, string $service);
 
-	/**
-	 * Regsiter the app to handle the pushing
-	 *
-	 * @param string $service The service that will be invoked by quering the
-	 * container. So DI should work for this class
-	 */
-	public function registerPushApp(string $service): void;
+	public function validateAccess(string $userId, string $appId, string $topic): bool;
 }

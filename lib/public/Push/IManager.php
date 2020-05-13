@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /**
  * @copyright Copyright (c) 2020, Roeland Jago Douma <roeland@famdouma.nl>
@@ -28,15 +29,6 @@ namespace OCP\Push;
  * @since 20.0.0
  */
 interface IManager {
-
-	/**
-	 * Get weather push is enabled or not
-	 *
-	 * @return bool
-	 *
-	 * @since 20.0.0
-	 */
-	public function hasPush(): bool;
 
 	/**
 	 * Register an access validator

@@ -34,7 +34,7 @@ class PushController extends \OCP\AppFramework\OCSController {
 	 *
 	 * Gets back the JWT to connect to the push service for the given topic
 	 */
-	public function getJWT(string $topic): DataResponse {
+	public function getJWT(string $appid, string $topic): DataResponse {
 
 	}
 }

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /**
  * @copyright Copyright (c) 2020, Roeland Jago Douma <roeland@famdouma.nl>
@@ -30,14 +31,6 @@ namespace OCP\AppFramework\Services;
  * @since 20.0.0
  */
 interface IPush {
-
-	/**
-	 * Get if there is a backend to handle push at all
-	 *
-	 * @return bool
-	 */
-	public function hasPush(): bool;
-
 	/**
 	 * Publish the data to the app topic.
 	 * The app topic will be APPID/$topid

@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 /**
  * @copyright Copyright (c) 2020, Roeland Jago Douma <roeland@famdouma.nl>
@@ -23,28 +22,26 @@ declare(strict_types=1);
  *
  */
 
-namespace OCP\Push;
+namespace OC\Push;
 
-/**
- * @since 20.0.0
- */
-interface IManager {
+use OCP\Push\IPushApp;
 
-	/**
-	 * Register an access validator
-	 *
-	 * @param string $appId
-	 * @param string $service
-	 *
-	 * @since 20.0.0
-	 */
-	public function registerAccessValidator(string $appId, string $service): void;
+class VoidPushApp implements IPushApp {
+	public function isAvailable(): bool {
+		return false;
+	}
 
-	/**
-	 * Regsiter the app to handle the pushing
-	 *
-	 * @param string $service The service that will be invoked by quering the
-	 * container. So DI should work for this class
-	 */
-	public function registerPushApp(string $service): void;
+	public function push(string $appId, string $topic, \JsonSerializable $payload): void {
+
+	}
+
+	public function generateJWT(string $appId, string $topic): string {
+		return '';
+	}
+
+	public function getEndpoint(string $appId, string $topic): string {
+		return '';
+	}
+
+
 }

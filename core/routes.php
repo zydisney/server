@@ -106,6 +106,8 @@ $application->registerRoutes($this, [
 		['root' => '/core', 'name' => 'AppPassword#rotateAppPassword', 'url' => '/apppassword/rotate', 'verb' => 'POST'],
 		['root' => '/core', 'name' => 'AppPassword#deleteAppPassword', 'url' => '/apppassword', 'verb' => 'DELETE'],
 
+		['root' => '/core', 'name' => 'Push#getAccess', 'url' => '/push/access', 'verb' => 'PUT'],
+
 		['root' => '/collaboration', 'name' => 'CollaborationResources#searchCollections', 'url' => '/resources/collections/search/{filter}', 'verb' => 'GET'],
 		['root' => '/collaboration', 'name' => 'CollaborationResources#listCollection', 'url' => '/resources/collections/{collectionId}', 'verb' => 'GET'],
 		['root' => '/collaboration', 'name' => 'CollaborationResources#renameCollection', 'url' => '/resources/collections/{collectionId}', 'verb' => 'PUT'],

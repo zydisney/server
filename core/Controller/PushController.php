@@ -25,16 +25,55 @@ declare(strict_types=1);
 
 namespace OC\Core\Controller;
 
+use OC\Push\Manager;
+use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\DataResponse;
+use OCP\IRequest;
+use OCP\IUserSession;
 
 class PushController extends \OCP\AppFramework\OCSController {
+
+	/** @var Manager */
+	private $pushManager;
+	/**
+	 * @var IUserSession
+	 */
+	private $userSession;
+
+	public function __construct(
+		string $appName,
+		IRequest $request,
+		Manager $pushManager,
+		IUserSession $userSession
+	) {
+		parent::__construct($appName, $request);
+
+		$this->pushManager = $pushManager;
+		$this->userSession = $userSession;
+	}
 
 	/**
 	 * @NoAdminRequired
 	 *
 	 * Gets back the JWT to connect to the push service for the given topic
 	 */
-	public function getJWT(string $appid, string $topic): DataResponse {
+	public function getAccess(string $appid, string $topic): DataResponse {
+		$uid = $this->userSession->getUser()->getUID();
 
+		if (!$this->pushManager->isAvailable()) {
+			return new DataResponse([], Http::STATUS_NOT_FOUND);
+		}
+
+		if (!$this->pushManager->validateAccess($uid, $appid, $topic)) {
+			return new DataResponse([], Http::STATUS_FORBIDDEN);
+		}
+
+		$jwt = $this->pushManager->generateJWT($appid, $topic);
+		$endpoint = $this->pushManager->getEndpoint($appid, $topic);
+
+		return new DataResponse([
+			'jwt' => $jwt,
+			'endpoint' => $endpoint,
+		]);
 	}
 }

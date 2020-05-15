@@ -23,19 +23,26 @@ declare(strict_types=1);
  *
  */
 
-namespace OCP\AppFramework\Services;
+namespace OC\AppFramework\Services;
 
-/**
- * Push helper for your Nextcloud apps
- *
- * @since 20.0.0
- */
-interface IPush {
-	/**
-	 * Publish the $payload to the apps $topic.
-	 *
-	 * @param string $topic
-	 * @param \JsonSerializable $payload
-	 */
-	public function publish(string $topic, \JsonSerializable $payload): void;
+use OC\Push\Manager;
+use OCP\AppFramework\Services\IPush;
+
+class Push implements IPush {
+
+	/** @var string */
+	private $appId;
+
+	/** @var Manager */
+	private $manager;
+
+	public function __construct(string $appName, Manager $manager) {
+		$this->appId = $appName;
+		$this->manager = $manager;
+	}
+
+	public function publish(string $topic, \JsonSerializable $payload): void {
+		$this->manager->push($this->appId, $topic, $payload);
+	}
+
 }

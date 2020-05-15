@@ -76,19 +76,20 @@ class Manager implements IManager, IPushApp {
 	}
 
 	public function validateAccess(string $userId, string $appId, string $topic): bool {
-		if (!isset($this->validatorClasses)) {
+		if (!isset($this->validatorClasses[$appId])) {
 			$this->logger->debug('No validator found for ' . $appId, ['app' => 'internal_push']);
 			return false;
 		}
 
 		try {
-			$validator = $this->validatorClasses[$appId]();
+			$validator = $this->container->query($this->validatorClasses[$appId]);
 		} catch (QueryException $e) {
 			$this->logger->debug('Could not query ' . $appId, ['app' => 'internal_push']);
 			return false;
 		}
 
 		if (!($validator instanceof IValidateAccess)) {
+			$this->logger->debug($this->validatorClasses[$appId] . ' is not an instance of ' . IValidateAccess::class, ['app' => 'internal_push']);
 			return false;
 		}
 

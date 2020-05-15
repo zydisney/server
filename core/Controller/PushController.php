@@ -57,19 +57,19 @@ class PushController extends \OCP\AppFramework\OCSController {
 	 *
 	 * Gets back the JWT to connect to the push service for the given topic
 	 */
-	public function getAccess(string $appid, string $topic): DataResponse {
+	public function getAccess(string $appId, string $topic): DataResponse {
 		$uid = $this->userSession->getUser()->getUID();
 
 		if (!$this->pushManager->isAvailable()) {
 			return new DataResponse([], Http::STATUS_NOT_FOUND);
 		}
 
-		if (!$this->pushManager->validateAccess($uid, $appid, $topic)) {
+		if (!$this->pushManager->validateAccess($uid, $appId, $topic)) {
 			return new DataResponse([], Http::STATUS_FORBIDDEN);
 		}
 
-		$jwt = $this->pushManager->generateJWT($appid, $topic);
-		$endpoint = $this->pushManager->getEndpoint($appid, $topic);
+		$jwt = $this->pushManager->generateJWT($appId, $topic);
+		$endpoint = $this->pushManager->getEndpoint($appId, $topic);
 
 		return new DataResponse([
 			'jwt' => $jwt,

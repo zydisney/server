@@ -1363,6 +1363,8 @@ class Server extends ServerContainer implements IServerContainer {
 
 		$this->registerAlias(IInitialStateService::class, InitialStateService::class);
 
+		$this->registerAlias(\OCP\Push\IManager::class, \OC\Push\Manager::class);
+
 		$this->connectDispatcher();
 	}
 

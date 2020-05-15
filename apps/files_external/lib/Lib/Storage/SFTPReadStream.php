@@ -81,20 +81,25 @@ class SFTPReadStream implements File {
 	}
 
 	public function stream_open($path, $mode, $options, &$opened_path) {
+		$logger = \OC::$server->getLogger();
+
 		[, $path] = explode('://', $path);
 		$this->loadContext('sftp');
 
 		if (!($this->sftp->bitmap & SSH2::MASK_LOGIN)) {
+			$logger->error("SFTP connection is not logged in", ['app' => 'sftp']);
 			return false;
 		}
 
 		$remote_file = $this->sftp->_realpath($path);
 		if ($remote_file === false) {
+			$logger->error("Failed to get real path for SFTP file '" . $path . "'", ['app' => 'sftp']);
 			return false;
 		}
 
 		$packet = pack('Na*N2', strlen($remote_file), $remote_file, NET_SFTP_OPEN_READ, 0);
 		if (!$this->sftp->_send_sftp_packet(NET_SFTP_OPEN, $packet)) {
+			$logger->error("Failed to send open command for sftp file '" . $remote_file . "'", ['app' => 'sftp']);
 			return false;
 		}
 
@@ -105,8 +110,13 @@ class SFTPReadStream implements File {
 				break;
 			case NET_SFTP_STATUS: // presumably SSH_FX_NO_SUCH_FILE or SSH_FX_PERMISSION_DENIED
 				$this->sftp->_logError($response);
+				$lastError = $this->sftp->sftp_errors[count($this->sftp->sftp_errors) - 1];
+				$logger->error("Unexpected response from open command '" . $lastError . "'", ['app' => 'sftp']);
 				return false;
 			default:
+				$this->sftp->_logError($response);
+				$lastError = $this->sftp->sftp_errors[count($this->sftp->sftp_errors) - 1];
+				$logger->error("Unexpected response from open command '" . $lastError . "'", ['app' => 'sftp']);
 				user_error('Expected SSH_FXP_HANDLE or SSH_FXP_STATUS');
 				return false;
 		}

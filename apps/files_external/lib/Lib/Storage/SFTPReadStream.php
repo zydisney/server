@@ -84,6 +84,7 @@ class SFTPReadStream implements File {
 		$logger = \OC::$server->getLogger();
 
 		[, $path] = explode('://', $path);
+		$logger->warning("Opened sftp path: $path");
 		$this->loadContext('sftp');
 
 		if (!($this->sftp->bitmap & SSH2::MASK_LOGIN)) {

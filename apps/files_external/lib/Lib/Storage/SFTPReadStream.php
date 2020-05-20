@@ -84,6 +84,8 @@ class SFTPReadStream implements File {
 		$logger = \OC::$server->getLogger();
 
 		[, $path] = explode('://', $path);
+		$path = '/' . ltrim($path);
+		$path = str_replace('//', '/', $path);
 		$logger->warning("Opened sftp path: $path");
 		$this->loadContext('sftp');
 

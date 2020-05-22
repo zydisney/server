@@ -285,7 +285,7 @@ class File extends Node implements IFile {
 					$fileExists = $storage->file_exists($internalPath);
 					if ($renameOkay === false || $fileExists === false) {
 						\OC::$server->getLogger()->error('renaming part file to final file failed $renameOkay: ' . ($renameOkay ? 'true' : 'false') . ', $fileExists: ' . ($fileExists ? 'true' : 'false') . ')', ['app' => 'webdav']);
-						throw new Exception('Could not rename part file to final file');
+						throw new Exception('Could not rename part file to final file, from: ' . $partStorage->getId(). '/' . $internalPartPath . ', to: ' . $storage->getId() . '/' . $internalPath);
 					}
 				} catch (ForbiddenException $ex) {
 					throw new DAVForbiddenException($ex->getMessage(), $ex->getRetry());

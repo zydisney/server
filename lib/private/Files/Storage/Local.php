@@ -337,7 +337,16 @@ class Local extends \OC\Files\Storage\Common {
 			}
 		}
 
-		return rename($this->getSourcePath($path1), $this->getSourcePath($path2));
+		$targetExists = file_exists($this->getSourcePath($path2));
+
+		$result = rename($this->getSourcePath($path1), $this->getSourcePath($path2));
+
+		if (!$result) {
+			$message = "Failed to rename file from " . $this->getSourcePath($path1) . " to " . $this->getSourcePath($path2) . ($targetExists ? " (target exists)" : "");
+			\OC::$server->getLogger()->logException(new \Exception($message));
+		}
+
+		return $result;
 	}
 
 	public function copy($path1, $path2) {

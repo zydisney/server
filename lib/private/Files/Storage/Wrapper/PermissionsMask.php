@@ -85,9 +85,18 @@ class PermissionsMask extends Wrapper {
 			$part = substr($path1, strlen($path2));
 			//This is a rename of the transfer file to the original file
 			if (strpos($part, '.ocTransferId') === 0) {
+				if (!$this->checkMask(Constants::PERMISSION_CREATE)) {
+					\OC::$server->getLogger()->warning("Blocking rename, not enough permissions");
+				}
+
 				return $this->checkMask(Constants::PERMISSION_CREATE) and parent::rename($path1, $path2);
 			}
 		}
+
+		if (!$this->checkMask(Constants::PERMISSION_UPDATE)) {
+			\OC::$server->getLogger()->warning("Blocking rename, not enough permissions");
+		}
+
 		return $this->checkMask(Constants::PERMISSION_UPDATE) and parent::rename($path1, $path2);
 	}
 

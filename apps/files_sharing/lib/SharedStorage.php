@@ -312,10 +312,12 @@ class SharedStorage extends \OC\Files\Storage\Wrapper\Jail implements ISharedSto
 
 		if ($targetExists || ($sameFodler && !$isPartFile)) {
 			if (!$this->isUpdatable('')) {
+				$this->logger->warning("Blocking rename, target not updatable");
 				return false;
 			}
 		} else {
 			if (!$this->isCreatable('')) {
+				$this->logger->warning("Blocking rename, target not creatable");
 				return false;
 			}
 		}

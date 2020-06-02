@@ -102,7 +102,6 @@ use OC\IntegrityCheck\Helpers\FileAccessHelper;
 use OC\Lock\DBLockingProvider;
 use OC\Lock\MemcacheLockingProvider;
 use OC\Lock\NoopLockingProvider;
-use OC\Lockdown\LockdownManager;
 use OC\Log\LogFactory;
 use OC\Log\PsrLoggerAdapter;
 use OC\Mail\Mailer;
@@ -491,7 +490,6 @@ class Server extends ServerContainer implements IServerContainer {
 				$defaultTokenProvider,
 				$c->getConfig(),
 				$c->getSecureRandom(),
-				$c->getLockdownManager(),
 				$c->getLogger(),
 				$c->query(IEventDispatcher::class)
 			);
@@ -1265,12 +1263,6 @@ class Server extends ServerContainer implements IServerContainer {
 				$c->getRootFolder(),
 				$c->getSystemConfig()
 			);
-		});
-
-		$this->registerService('LockdownManager', function (Server $c) {
-			return new LockdownManager(function () use ($c) {
-				return $c->getSession();
-			});
 		});
 
 		$this->registerService(\OCP\OCS\IDiscoveryService::class, function (Server $c) {
@@ -2166,13 +2158,6 @@ class Server extends ServerContainer implements IServerContainer {
 		/** @var \OC\Files\AppData\Factory $factory */
 		$factory = $this->query(\OC\Files\AppData\Factory::class);
 		return $factory->get($app);
-	}
-
-	/**
-	 * @return \OCP\Lockdown\ILockdownManager
-	 */
-	public function getLockdownManager() {
-		return $this->query('LockdownManager');
 	}
 
 	/**

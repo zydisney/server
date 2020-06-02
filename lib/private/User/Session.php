@@ -59,7 +59,6 @@ use OCP\IRequest;
 use OCP\ISession;
 use OCP\IUser;
 use OCP\IUserSession;
-use OCP\Lockdown\ILockdownManager;
 use OCP\Security\ISecureRandom;
 use OCP\Session\Exceptions\SessionNotAvailableException;
 use OCP\User\Events\PostLoginEvent;
@@ -111,9 +110,6 @@ class Session implements IUserSession, Emitter {
 	/** @var ISecureRandom */
 	private $random;
 
-	/** @var ILockdownManager  */
-	private $lockdownManager;
-
 	/** @var ILogger */
 	private $logger;
 	/** @var IEventDispatcher */
@@ -126,7 +122,6 @@ class Session implements IUserSession, Emitter {
 	 * @param IProvider $tokenProvider
 	 * @param IConfig $config
 	 * @param ISecureRandom $random
-	 * @param ILockdownManager $lockdownManager
 	 * @param ILogger $logger
 	 */
 	public function __construct(Manager $manager,
@@ -135,7 +130,6 @@ class Session implements IUserSession, Emitter {
 								$tokenProvider,
 								IConfig $config,
 								ISecureRandom $random,
-								ILockdownManager $lockdownManager,
 								ILogger $logger,
 								IEventDispatcher $dispatcher
 	) {
@@ -145,7 +139,6 @@ class Session implements IUserSession, Emitter {
 		$this->tokenProvider = $tokenProvider;
 		$this->config = $config;
 		$this->random = $random;
-		$this->lockdownManager = $lockdownManager;
 		$this->logger = $logger;
 		$this->dispatcher = $dispatcher;
 	}
@@ -391,7 +384,6 @@ class Session implements IUserSession, Emitter {
 		$isToken = isset($loginDetails['token']) && $loginDetails['token'] instanceof IToken;
 		if ($isToken) {
 			$this->setToken($loginDetails['token']->getId());
-			$this->lockdownManager->setToken($loginDetails['token']);
 			$firstTimeLogin = false;
 		} else {
 			$this->setToken(null);
@@ -790,9 +782,6 @@ class Session implements IUserSession, Emitter {
 			return false;
 		}
 
-		// Update token scope
-		$this->lockdownManager->setToken($dbToken);
-
 		$this->tokenProvider->updateTokenActivity($dbToken);
 
 		return true;
@@ -875,7 +864,6 @@ class Session implements IUserSession, Emitter {
 		$this->setUser($user);
 		$this->setLoginName($token->getLoginName());
 		$this->setToken($token->getId());
-		$this->lockdownManager->setToken($token);
 		$user->updateLastLoginTimestamp();
 		$password = null;
 		try {

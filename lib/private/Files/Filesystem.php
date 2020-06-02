@@ -62,7 +62,6 @@ namespace OC\Files;
 use OC\Cache\CappedMemoryCache;
 use OC\Files\Config\MountProviderCollection;
 use OC\Files\Mount\MountPoint;
-use OC\Lockdown\Filesystem\NullStorage;
 use OCP\Files\Config\IMountProvider;
 use OCP\Files\NotFoundException;
 use OCP\Files\Storage\IStorageFactory;

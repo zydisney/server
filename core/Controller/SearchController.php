@@ -55,6 +55,11 @@ class SearchController extends Controller {
 			if (!mb_check_encoding($result->name, 'utf8') || !mb_check_encoding($result->link, 'utf8')) {
 				throw new \Exception("Search result contains non utf8 data: " . $result->name);
 			}
+
+			$response = json_encode($result);
+			if ($response === false) {
+				throw new \Exception("Search result contains non utf8 data: " . $result->name);
+			}
 		}
 
 		return new JSONResponse($results);

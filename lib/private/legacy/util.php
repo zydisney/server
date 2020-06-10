@@ -60,6 +60,7 @@
  *
  */
 
+use OC\Files\Storage\LocalRootStorage;
 use OCP\IConfig;
 use OCP\IGroupManager;
 use OCP\ILogger;
@@ -86,7 +87,7 @@ class OC_Util {
 		//first set up the local "root" storage
 		\OC\Files\Filesystem::initMountManager();
 		if (!self::$rootMounted) {
-			\OC\Files\Filesystem::mount('\OC\Files\Storage\Local', array('datadir' => $configDataDirectory), '/');
+			\OC\Files\Filesystem::mount(LocalRootStorage::class, ['datadir' => $configDataDirectory], '/');
 			self::$rootMounted = true;
 		}
 	}

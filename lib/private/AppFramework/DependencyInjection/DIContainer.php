@@ -59,6 +59,7 @@ use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\Files\Folder;
 use OCP\Files\IAppData;
 use OCP\Group\ISubAdmin;
+use OCP\IConfig;
 use OCP\IL10N;
 use OCP\ILogger;
 use OCP\INavigationManager;
@@ -295,8 +296,18 @@ class DIContainer extends SimpleContainer implements IAppContainer {
 			return $dispatcher;
 		});
 
-		$this->registerAlias(IAppConfig::class, OC\AppFramework\Services\AppConfig::class);
-		$this->registerAlias(IInitialState::class, OC\AppFramework\Services\InitialState::class);
+		$this->registerService(IAppConfig::class, function (SimpleContainer $c) {
+			return new OC\AppFramework\Services\AppConfig(
+				$c->query(IConfig::class),
+				$c->query('AppName')
+			);
+		});
+		$this->registerService(IInitialState::class, function (SimpleContainer $c) {
+			return new OC\AppFramework\Services\InitialState(
+				$c->query(IInitialState::class),
+				$c->query('AppName')
+			);
+		});
 	}
 
 	/**

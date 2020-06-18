@@ -25,6 +25,7 @@ declare(strict_types=1);
 
 namespace OC\AppFramework\Bootstrap;
 
+use OC\Push\Manager as PushManager;
 use OC\Search\SearchComposer;
 use OC\Support\CrashReport\Registry;
 use OC_App;
@@ -56,16 +57,21 @@ class Coordinator {
 	/** @var ILogger */
 	private $logger;
 
+	/** @var PushManager */
+	private $pushManager;
+
 	public function __construct(IServerContainer $container,
 								Registry $registry,
 								IEventDispatcher $eventListener,
 								SearchComposer $searchComposer,
+								PushManager $pushManager,
 								ILogger $logger) {
 		$this->serverContainer = $container;
 		$this->registry = $registry;
 		$this->eventDispatcher = $eventListener;
 		$this->searchComposer = $searchComposer;
 		$this->logger = $logger;
+		$this->pushManager = $pushManager;
 	}
 
 	public function runRegistration(): void {
@@ -119,6 +125,7 @@ class Coordinator {
 		$context->delegateContainerRegistrations($apps);
 		$context->delegateMiddlewareRegistrations($apps);
 		$context->delegateSearchProviderRegistration($apps, $this->searchComposer);
+		$context->delegatePushRegistrations($this->pushManager);
 	}
 
 	public function bootApp(string $appId): void {

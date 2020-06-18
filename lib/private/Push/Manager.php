@@ -32,7 +32,7 @@ use OCP\Push\IManager;
 use OCP\Push\IPushApp;
 use OCP\Push\IValidateAccess;
 
-class Manager implements IManager, IPushApp {
+class Manager implements IPushApp {
 
 	/** @var array */
 	private $validatorClasses = [];

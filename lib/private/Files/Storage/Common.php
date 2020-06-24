@@ -858,6 +858,7 @@ abstract class Common implements Storage, ILockingStorage, IWriteStreamStorage {
 	public function writeStream(string $path, $stream, int $size = null): int {
 		$target = $this->fopen($path, 'w');
 		if (!$target) {
+			\OC::$server->getLogger()->warning("Failed to open target '$path' for writing stream");
 			return 0;
 		}
 		try {

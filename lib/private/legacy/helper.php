@@ -263,7 +263,9 @@ class OC_Helper {
 			if ($bytesWritten === false
 				|| ($bytesWritten < $bufSize && $bytesWritten < strlen($buf))
 			) {
+				$chunkSize = strlen($buf);
 				// write error, could be disk full ?
+				\OC::$server->getLogger()->warning("Failed to write entire chunk while copying stream, only wrote $bytesWritten out of $chunkSize");
 				$result = false;
 				break;
 			}

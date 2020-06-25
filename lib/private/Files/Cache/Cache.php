@@ -50,6 +50,7 @@ use OCP\Files\IMimeTypeLoader;
 use OCP\Files\Search\ISearchQuery;
 use OCP\Files\Storage\IStorage;
 use OCP\IDBConnection;
+use OCP\ILogger;
 
 /**
  * Metadata cache for a storage
@@ -309,6 +310,7 @@ class Cache implements ICache {
 				return $fileId;
 			}
 		} catch (UniqueConstraintViolationException $e) {
+			\OC::$server->getLogger()->logException($e, ['level' => ILogger::WARN]);
 			// entry exists already
 			if ($this->connection->inTransaction()) {
 				$this->connection->commit();
@@ -321,7 +323,7 @@ class Cache implements ICache {
 			$this->update($id, $data);
 			return $id;
 		} else {
-			throw new \RuntimeException('File entry could not be inserted but could also not be selected with getId() in order to perform an update. Please try again.');
+			throw new \RuntimeException("File entry could not be inserted but could also not be selected with getId() in order to perform an update, path: $file, storage: " . $this->storageId . "(" . $this->getNumericStorageId() . ")");
 		}
 	}
 

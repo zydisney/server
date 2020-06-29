@@ -116,7 +116,7 @@ class NativeFileInfo implements IFileInfo {
 	 */
 	public function isDirectory() {
 		$mode = $this->getMode();
-		if ($mode > 0x80) {
+		if ($mode > 0x1000) {
 			return (bool)($mode & 0x4000); // 0x80: unix directory flag
 		} else {
 			return (bool)($mode & IFileInfo::MODE_DIRECTORY);

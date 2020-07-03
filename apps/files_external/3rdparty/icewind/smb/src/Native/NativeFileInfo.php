@@ -11,6 +11,8 @@ use Icewind\SMB\ACL;
 use Icewind\SMB\IFileInfo;
 
 class NativeFileInfo implements IFileInfo {
+	const MODE_FILE = 0100000;
+
 	/**
 	 * @var string
 	 */
@@ -27,6 +29,11 @@ class NativeFileInfo implements IFileInfo {
 	protected $share;
 
 	/**
+	 * @var NativeState
+	 */
+	protected $stat;
+
+	/**
 	 * @var array|null
 	 */
 	protected $attributeCache = null;
@@ -35,11 +42,13 @@ class NativeFileInfo implements IFileInfo {
 	 * @param NativeShare $share
 	 * @param string $path
 	 * @param string $name
+	 * @param array $stat
 	 */
-	public function __construct($share, $path, $name) {
+	public function __construct($share, $path, $name, $stat) {
 		$this->share = $share;
 		$this->path = $path;
 		$this->name = $name;
+		$this->stat = $stat;
 	}
 
 	/**
@@ -64,7 +73,7 @@ class NativeFileInfo implements IFileInfo {
 			$rawAttributes = explode(',', $this->share->getAttribute($this->path, 'system.dos_attr.*'));
 			$this->attributeCache = [];
 			foreach ($rawAttributes as $rawAttribute) {
-				list($name, $value) = explode(':', $rawAttribute);
+				[$name, $value] = explode(':', $rawAttribute);
 				$name = strtolower($name);
 				if ($name == 'mode') {
 					$this->attributeCache[$name] = (int)hexdec(substr($value, 2));
@@ -115,12 +124,7 @@ class NativeFileInfo implements IFileInfo {
 	 * @return bool
 	 */
 	public function isDirectory() {
-		$mode = $this->getMode();
-		if ($mode > 0x80) {
-			return (bool)($mode & 0x4000); // 0x80: unix directory flag
-		} else {
-			return (bool)($mode & IFileInfo::MODE_DIRECTORY);
-		}
+		return !($this->stat['mode'] & self::MODE_FILE);
 	}
 
 	/**
@@ -179,8 +183,8 @@ class NativeFileInfo implements IFileInfo {
 		$attribute = $this->share->getAttribute($this->path, 'system.nt_sec_desc.acl.*+');
 
 		foreach (explode(',', $attribute) as $acl) {
-			list($user, $permissions) = explode(':', $acl, 2);
-			list($type, $flags, $mask) = explode('/', $permissions);
+			[$user, $permissions] = explode(':', $acl, 2);
+			[$type, $flags, $mask] = explode('/', $permissions);
 			$mask = hexdec($mask);
 
 			$acls[$user] = new ACL($type, $flags, $mask);

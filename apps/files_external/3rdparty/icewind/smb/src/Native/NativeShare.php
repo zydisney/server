@@ -94,7 +94,8 @@ class NativeShare extends AbstractShare {
 			$name = $file['name'];
 			if ($name !== '.' and $name !== '..') {
 				$fullPath = $path . '/' . $name;
-				$files [] = new NativeFileInfo($this, $fullPath, $name);
+				$url = $this->buildUrl($fullPath);
+				$files [] = new NativeFileInfo($this, $fullPath, $name, $this->getState()->stat($url));
 			}
 		}
 
@@ -107,7 +108,8 @@ class NativeShare extends AbstractShare {
 	 * @return \Icewind\SMB\IFileInfo
 	 */
 	public function stat($path) {
-		$info = new NativeFileInfo($this, $path, self::mb_basename($path));
+		$url = $this->buildUrl($path);
+		$info = new NativeFileInfo($this, $path, self::mb_basename($path), $this->getState()->stat($url));
 
 		// trigger attribute loading
 		$info->getSize();

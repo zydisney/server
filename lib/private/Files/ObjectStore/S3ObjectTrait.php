@@ -53,7 +53,7 @@ trait S3ObjectTrait {
 			$command = $this->getConnection()->getCommand('GetObject', [
 				'Bucket' => $this->bucket,
 				'Key' => $urn,
-				'Range' => 'bytes=' . $range,
+				'Range' => 'bytes=' . $range . '-',
 			]);
 			$request = \Aws\serialize($command);
 			$headers = [];

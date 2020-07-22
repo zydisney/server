@@ -325,7 +325,15 @@ class Node implements \OCP\Files\Node {
 	 * @return bool
 	 */
 	public function isValidPath($path) {
-		if (!$path || $path[0] !== '/') {
+		// @Todo Remove if isValidPath type hinted.
+		if (is_int($path)) {
+			try {
+				throw new \LogicException('$path is integer: ' . $path);
+			} catch (\LogicException $e) {
+				\OC::$server->getLogger()->logException($e);
+			}
+		}
+		if (!$path || strpos($path, '/') !== 0) {
 			$path = '/' . $path;
 		}
 		if (strstr($path, '/../') || strrchr($path, '/') === '/..') {

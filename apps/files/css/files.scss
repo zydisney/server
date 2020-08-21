@@ -459,16 +459,20 @@ table td.selection {
 }
 
 /* File checkboxes */
-#fileList tr td.selection>.selectCheckBox + label:before {
+#filestable th #select_all_files + label:before,
+#fileList tr td.selection > .selectCheckBox + label:before {
 	opacity: 0.3;
 	margin-right: 0;
 }
 
 /* Show checkbox with full opacity when hovering, checked, or selected */
-#fileList tr:hover td.selection>.selectCheckBox + label:before,
-#fileList tr:focus td.selection>.selectCheckBox + label:before,
-#fileList tr td.selection>.selectCheckBox:checked + label:before,
-#fileList tr.selected td.selection>.selectCheckBox + label:before {
+#filestable th:hover #select_all_files + label:before,
+#filestable th #select_all_files:focus + label:before,
+#filestable th #select_all_files:checked + label:before,
+#fileList tr:hover td.selection > .selectCheckBox + label:before,
+#fileList tr td.selection > .selectCheckBox:focus + label:before,
+#fileList tr td.selection > .selectCheckBox:checked + label:before,
+#fileList tr.selected td.selection > .selectCheckBox + label:before {
 	opacity: 1;
 }
 

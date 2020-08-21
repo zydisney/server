@@ -358,14 +358,21 @@ input {
 				height: $checkbox-radio-size;
 				width: $checkbox-radio-size;
 				vertical-align: middle;
-				border-radius: 50%;
-				margin: 0 6px 3px 3px;
+				border-radius: var(--border-radius-pill);
+				margin: 0 13px 2px 4px;
 				border: 1px solid $color-checkbox-radio-border;
 			}
-			&:not(:disabled):not(:checked) + label:hover:before,
+
+			&:not(:disabled) + label:hover:before,
 			&:focus + label:before {
-				border-color: var(--color-primary-element);
+				box-shadow: 0 0 0 2px var(--color-text-maxcontrast) !important;
 			}
+
+			&:not(:disabled):not(:checked) + label:hover:before,
+			&:focus:not(:checked) + label:before {
+				box-shadow: 0 0 0 2px var(--color-primary-element) !important;
+			}
+
 			&:checked + label:before,
 			&.checkbox:indeterminate + label:before {
 			/* ^ :indeterminate have a strange behavior on radio,
@@ -393,7 +400,7 @@ input {
 		}
 		&.checkbox {
 			+ label:before {
-				border-radius: 1px;
+				border-radius: var(--border-radius);
 				height: $checkbox-radio-size;
 				width: $checkbox-radio-size;
 				box-shadow: none !important;

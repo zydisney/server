@@ -895,6 +895,18 @@ span.version {
 			display: inline-block;
 		}
 	}
+
+	input {
+		&[type='checkbox'],
+		&[type='radio'] {
+			&.radio,
+			&.checkbox {
+				+ label {
+					line-height: 44px;
+				}
+			}
+		}
+	}
 }
 
 .personal-settings-setting-box .section {

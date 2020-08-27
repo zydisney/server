@@ -29,25 +29,18 @@
  *
  */
 
-var_dump('before version check');
 require_once __DIR__ . '/lib/versioncheck.php';
 
 try {
-	var_dump('before base');
 	require_once __DIR__ . '/lib/base.php';
 
-	var_dump('before handleRequest');
 	OC::handleRequest();
-	var_dump('after handleRequest');
 } catch (\OC\ServiceUnavailableException $ex) {
-	var_dump('ServiceUnavailableException');
 	\OC::$server->getLogger()->logException($ex, ['app' => 'index']);
 
 	//show the user a detailed error page
 	OC_Template::printExceptionErrorPage($ex, 503);
-	var_dump('after printExceptionErrorPage');
 } catch (\OC\HintException $ex) {
-	var_dump('HintException');
 	try {
 		OC_Template::printErrorPage($ex->getMessage(), $ex->getHint(), 503);
 	} catch (Exception $ex2) {
@@ -62,16 +55,13 @@ try {
 		OC_Template::printExceptionErrorPage($ex, 500);
 	}
 } catch (\OC\User\LoginException $ex) {
-	var_dump('LoginException');
 	OC_Template::printErrorPage($ex->getMessage(), $ex->getMessage(), 403);
 } catch (Exception $ex) {
-	var_dump('Exception');
 	\OC::$server->getLogger()->logException($ex, ['app' => 'index']);
 
 	//show the user a detailed error page
 	OC_Template::printExceptionErrorPage($ex, 500);
 } catch (Error $ex) {
-	var_dump('Error');
 	try {
 		\OC::$server->getLogger()->logException($ex, ['app' => 'index']);
 	} catch (Error $e) {

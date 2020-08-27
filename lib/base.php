@@ -928,12 +928,16 @@ class OC {
 	 * Handle the request
 	 */
 	public static function handleRequest() {
+		var_dump('handleRequest');
 		\OC::$server->getEventLogger()->start('handle_request', 'Handle request');
 		$systemConfig = \OC::$server->getSystemConfig();
+		var_dump('$systemConfig');
 
 		// Check if Nextcloud is installed or in maintenance (update) mode
 		if (!$systemConfig->getValue('installed', false)) {
+			var_dump('installed', false);
 			\OC::$server->getSession()->clear();
+			var_dump('getSession');
 			$setupHelper = new OC\Setup(
 				$systemConfig,
 				\OC::$server->get(\bantu\IniGetWrapper\IniGetWrapper::class),
@@ -943,8 +947,11 @@ class OC {
 				\OC::$server->getSecureRandom(),
 				\OC::$server->query(\OC\Installer::class)
 			);
+			var_dump('$setupHelper');
 			$controller = new OC\Core\Controller\SetupController($setupHelper);
+			var_dump('$controller', $_POST);
 			$controller->run($_POST);
+			var_dump('run');
 			exit();
 		}
 

@@ -412,11 +412,14 @@ class MigrationService {
 	public function migrate($to = 'latest', $schemaOnly = false) {
 		$this->lastSchema = null;
 
+		$time = microtime(true);
 		// read known migrations
 		$toBeExecuted = $this->getMigrationsToExecute($to);
 		foreach ($toBeExecuted as $version) {
 			$this->executeStep($version, $schemaOnly);
 		}
+
+		var_dump('TOTAL TIME FOR ' . $this->appName, microtime(true) - $time);
 	}
 
 	/**

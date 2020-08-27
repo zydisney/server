@@ -353,17 +353,22 @@ class Setup {
 		}
 
 		$this->config->setValues($newConfigValues);
+		var_dump('setValues');
 
 		$dbSetup->initialize($options);
+		var_dump('initialize');
 		try {
 			$dbSetup->setupDatabase($username);
+			var_dump('setupDatabase');
 		} catch (\OC\DatabaseSetupException $e) {
+			var_dump('DatabaseSetupException');
 			$error[] = [
 				'error' => $e->getMessage(),
 				'hint' => $e->getHint(),
 			];
 			return $error;
 		} catch (Exception $e) {
+			var_dump('Exception');
 			$error[] = [
 				'error' => 'Error while trying to create admin user: ' . $e->getMessage(),
 				'hint' => '',
@@ -372,7 +377,9 @@ class Setup {
 		}
 		try {
 			// apply necessary migrations
+			var_dump('runMigrations');
 			$dbSetup->runMigrations();
+			var_dump('2runMigrations');
 		} catch (Exception $e) {
 			$error[] = [
 				'error' => 'Error while trying to initialise the database: ' . $e->getMessage(),

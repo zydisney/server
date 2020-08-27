@@ -467,15 +467,28 @@ class MigrationService {
 	public function executeStep($version, $schemaOnly = false) {
 		$instance = $this->createInstance($version);
 
+		$time = microtime(true);
+		if ($this->appName === 'twofactor_backupcodes') {
+			var_dump($version);
+		}
+		$stepTime = $time;
 		if (!$schemaOnly) {
 			$instance->preSchemaChange($this->output, function () {
 				return new SchemaWrapper($this->connection);
 			}, ['tablePrefix' => $this->connection->getPrefix()]);
 		}
+		if ($this->appName === 'twofactor_backupcodes') {
+			var_dump('preSchemaChange', microtime(true) - $stepTime);
+			$stepTime = microtime(true);
+		}
 
 		$toSchema = $instance->changeSchema($this->output, function () {
 			return new SchemaWrapper($this->connection);
 		}, ['tablePrefix' => $this->connection->getPrefix()]);
+		if ($this->appName === 'twofactor_backupcodes') {
+			var_dump('changeSchema', microtime(true) - $stepTime);
+			$stepTime = microtime(true);
+		}
 
 		if ($toSchema instanceof SchemaWrapper) {
 			$targetSchema = $toSchema->getWrappedSchema();
@@ -483,14 +496,30 @@ class MigrationService {
 				$sourceSchema = $this->connection->createSchema();
 				$this->ensureOracleIdentifierLengthLimit($sourceSchema, $targetSchema, strlen($this->connection->getPrefix()));
 			}
+			if ($this->appName === 'twofactor_backupcodes') {
+				var_dump('$this->checkOracle', microtime(true) - $stepTime);
+				$stepTime = microtime(true);
+			}
 			$this->connection->migrateToSchema($targetSchema);
+			if ($this->appName === 'twofactor_backupcodes') {
+				var_dump('migrateToSchema', microtime(true) - $stepTime);
+				$stepTime = microtime(true);
+			}
 			$toSchema->performDropTableCalls();
+			if ($this->appName === 'twofactor_backupcodes') {
+				var_dump('performDropTableCalls', microtime(true) - $stepTime);
+				$stepTime = microtime(true);
+			}
 		}
 
 		if (!$schemaOnly) {
 			$instance->postSchemaChange($this->output, function () {
 				return new SchemaWrapper($this->connection);
 			}, ['tablePrefix' => $this->connection->getPrefix()]);
+		}
+		if ($this->appName === 'twofactor_backupcodes') {
+			var_dump('postSchemaChange', microtime(true) - $stepTime);
+			var_dump('total', microtime(true) - $time);
 		}
 
 		$this->markAsExecuted($version);

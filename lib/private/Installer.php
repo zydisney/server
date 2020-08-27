@@ -593,8 +593,12 @@ class Installer {
 				);
 			}
 		} else {
+
+			$time = microtime(true);
 			$ms = new \OC\DB\MigrationService($app, \OC::$server->getDatabaseConnection());
 			$ms->migrate();
+
+			var_dump('total migration time', microtime(true) - $time);
 		}
 
 		//run appinfo/install.php

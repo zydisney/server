@@ -392,14 +392,18 @@ class Setup {
 		$user = null;
 		try {
 			$user = \OC::$server->getUserManager()->createUser($username, $password);
+			var_dump('createUser');
 			if (!$user) {
 				$error[] = "User <$username> could not be created.";
 			}
 		} catch (Exception $exception) {
+			var_dump('Exception');
 			$error[] = $exception->getMessage();
 		}
+		var_dump($error);
 
 		if (empty($error)) {
+			var_dump('empty($error)');
 			$config = \OC::$server->getConfig();
 			$config->setAppValue('core', 'installedat', microtime(true));
 			$config->setAppValue('core', 'lastupdatedat', microtime(true));
@@ -409,17 +413,21 @@ class Setup {
 			if ($group instanceof IGroup) {
 				$group->addUser($user);
 			}
+			var_dump('addUser');
 
 			// Install shipped apps and specified app bundles
 			Installer::installShippedApps();
+			var_dump('installShippedApps');
 			$bundleFetcher = new BundleFetcher(\OC::$server->getL10N('lib'));
 			$defaultInstallationBundles = $bundleFetcher->getDefaultInstallationBundle();
 			foreach ($defaultInstallationBundles as $bundle) {
 				try {
+					var_dump($bundle);
 					$this->installer->installAppBundle($bundle);
 				} catch (Exception $e) {
 				}
 			}
+			var_dump('installAppBundle');
 
 			// create empty file in data dir, so we can later find
 			// out that this is indeed an ownCloud data directory
@@ -427,9 +435,12 @@ class Setup {
 
 			// Update .htaccess files
 			self::updateHtaccess();
+			var_dump('updateHtaccess');
 			self::protectDataDirectory();
+			var_dump('protectDataDirectory');
 
 			self::installBackgroundJobs();
+			var_dump('installBackgroundJobs');
 
 			//and we are done
 			$config->setSystemValue('installed', true);

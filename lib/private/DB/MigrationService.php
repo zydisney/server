@@ -58,6 +58,8 @@ class MigrationService {
 	private $appName;
 	/** @var bool */
 	private $checkOracle;
+	/** @var Schema */
+	private $lastSchema;
 
 	/**
 	 * MigrationService constructor.
@@ -408,6 +410,8 @@ class MigrationService {
 	 * @throws \InvalidArgumentException
 	 */
 	public function migrate($to = 'latest', $schemaOnly = false) {
+		$this->lastSchema = null;
+
 		// read known migrations
 		$toBeExecuted = $this->getMigrationsToExecute($to);
 		foreach ($toBeExecuted as $version) {
@@ -474,7 +478,7 @@ class MigrationService {
 		$stepTime = $time;
 		if (!$schemaOnly) {
 			$instance->preSchemaChange($this->output, function () {
-				return new SchemaWrapper($this->connection);
+				return new SchemaWrapper($this->connection, $this->lastSchema);
 			}, ['tablePrefix' => $this->connection->getPrefix()]);
 		}
 		if ($this->appName === 'twofactor_backupcodes' || $this->appName === 'dav') {
@@ -483,7 +487,7 @@ class MigrationService {
 		}
 
 		$toSchema = $instance->changeSchema($this->output, function () {
-			return new SchemaWrapper($this->connection);
+			return new SchemaWrapper($this->connection, $this->lastSchema);
 		}, ['tablePrefix' => $this->connection->getPrefix()]);
 		if ($this->appName === 'twofactor_backupcodes' || $this->appName === 'dav') {
 			var_dump('changeSchema', microtime(true) - $stepTime);
@@ -494,7 +498,7 @@ class MigrationService {
 			$targetSchema = $toSchema->getWrappedSchema();
 			if ($this->checkOracle) {
 				$cTime = microtime(true);
-				$sourceSchema = $this->connection->createSchema();
+				$sourceSchema = $this->lastSchema ?: $this->connection->createSchema();
 				if ($this->appName === 'twofactor_backupcodes' || $this->appName === 'dav') {
 					var_dump('$this->connection->createSchema()', microtime(true) - $cTime);
 					$cTime = microtime(true);
@@ -519,11 +523,12 @@ class MigrationService {
 				var_dump('performDropTableCalls', microtime(true) - $stepTime);
 				$stepTime = microtime(true);
 			}
+			$this->lastSchema = $targetSchema;
 		}
 
 		if (!$schemaOnly) {
 			$instance->postSchemaChange($this->output, function () {
-				return new SchemaWrapper($this->connection);
+				return new SchemaWrapper($this->connection, $this->lastSchema);
 			}, ['tablePrefix' => $this->connection->getPrefix()]);
 		}
 		if ($this->appName === 'twofactor_backupcodes' || $this->appName === 'dav') {

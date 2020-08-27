@@ -479,6 +479,7 @@ class MigrationService {
 		$stepTime = $time;
 		if (!$schemaOnly) {
 			$instance->preSchemaChange($this->output, function () {
+				$this->lastSchema = $this->lastSchema ?: $this->connection->createSchema();
 				return new SchemaWrapper($this->connection, $this->lastSchema);
 			}, ['tablePrefix' => $this->connection->getPrefix()]);
 		}
@@ -488,6 +489,7 @@ class MigrationService {
 		}
 
 		$toSchema = $instance->changeSchema($this->output, function () {
+			$this->lastSchema = $this->lastSchema ?: $this->connection->createSchema();
 			return new SchemaWrapper($this->connection, $this->lastSchema);
 		}, ['tablePrefix' => $this->connection->getPrefix()]);
 		if ($this->appName === 'twofactor_backupcodes' || $this->appName === 'dav') {
@@ -499,12 +501,12 @@ class MigrationService {
 			$targetSchema = $toSchema->getWrappedSchema();
 			if ($this->checkOracle) {
 				$cTime = microtime(true);
-				$sourceSchema = $this->lastSchema ?: $this->connection->createSchema();
+				$this->lastSchema = $this->lastSchema ?: $this->connection->createSchema();
 				if ($this->appName === 'twofactor_backupcodes' || $this->appName === 'dav') {
 					var_dump('$this->connection->createSchema()', microtime(true) - $cTime);
 					$cTime = microtime(true);
 				}
-				$this->ensureOracleIdentifierLengthLimit($sourceSchema, $targetSchema, strlen($this->connection->getPrefix()));
+				$this->ensureOracleIdentifierLengthLimit($this->lastSchema, $targetSchema, strlen($this->connection->getPrefix()));
 				if ($this->appName === 'twofactor_backupcodes' || $this->appName === 'dav') {
 					var_dump('$this->ensureOracleIdentifierLengthLimit()', microtime(true) - $cTime);
 					$stepTime = microtime(true);
@@ -524,11 +526,12 @@ class MigrationService {
 				var_dump('performDropTableCalls', microtime(true) - $stepTime);
 				$stepTime = microtime(true);
 			}
-			$this->lastSchema = clone $targetSchema;
+			$this->lastSchema = null;
 		}
 
 		if (!$schemaOnly) {
 			$instance->postSchemaChange($this->output, function () {
+				$this->lastSchema = $this->lastSchema ?: $this->connection->createSchema();
 				return new SchemaWrapper($this->connection, $this->lastSchema);
 			}, ['tablePrefix' => $this->connection->getPrefix()]);
 		}

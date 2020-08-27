@@ -529,9 +529,15 @@ class Installer {
 		$appManager = \OC::$server->getAppManager();
 		$config = \OC::$server->getConfig();
 		$errors = [];
+
+		$time = microtime(true);
+		var_dump('installShippedApps');
 		foreach (\OC::$APPSROOTS as $app_dir) {
+			var_dump('$app_dir', $app_dir);
 			if ($dir = opendir($app_dir['path'])) {
 				while (false !== ($filename = readdir($dir))) {
+					var_dump($filename);
+					var_dump( microtime(true) - $time);
 					if ($filename[0] !== '.' and is_dir($app_dir['path']."/$filename")) {
 						if (file_exists($app_dir['path']."/$filename/appinfo/info.xml")) {
 							if ($config->getAppValue($filename, "installed_version", null) === null) {

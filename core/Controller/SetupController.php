@@ -54,8 +54,11 @@ class SetupController {
 	 */
 	public function run($post) {
 		// Check for autosetup:
+		var_dump('loadAutoConfig');
 		$post = $this->loadAutoConfig($post);
+		var_dump('getSystemInfo');
 		$opts = $this->setupHelper->getSystemInfo();
+		var_dump('getSystemInfo2');
 
 		// convert 'abcpassword' to 'abcpass'
 		if (isset($post['adminpassword'])) {
@@ -66,14 +69,19 @@ class SetupController {
 		}
 
 		if (!is_file(\OC::$configDir.'/CAN_INSTALL')) {
+			var_dump('CAN_INSTALL');
 			$this->displaySetupForbidden();
+			var_dump('displaySetupForbidden');
 			return;
 		}
 
+		var_dump('displaySetupForbidden');
 		if (isset($post['install']) and $post['install']=='true') {
+			var_dump('setupHelper->install');
 			// We have to launch the installation process :
 			$e = $this->setupHelper->install($post);
 			$errors = ['errors' => $e];
+			var_dump($errors);
 
 			if (count($e) > 0) {
 				$options = array_merge($opts, $post, $errors);
@@ -82,8 +90,11 @@ class SetupController {
 				$this->finishSetup(isset($post['install-recommended-apps']));
 			}
 		} else {
+			var_dump('else');
+			var_dump($opts, $post);
 			$options = array_merge($opts, $post);
 			$this->display($options);
+			var_dump('display');
 		}
 	}
 

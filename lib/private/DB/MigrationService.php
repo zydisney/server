@@ -475,9 +475,7 @@ class MigrationService {
 		$instance = $this->createInstance($version);
 
 		$time = microtime(true);
-		if ($this->appName === 'twofactor_backupcodes' || $this->appName === 'dav') {
-			var_dump($version);
-		}
+		var_dump($version);
 		$stepTime = $time;
 		if (!$schemaOnly) {
 			$instance->preSchemaChange($this->output, function () {

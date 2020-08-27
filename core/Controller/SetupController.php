@@ -77,11 +77,13 @@ class SetupController {
 
 		var_dump('displaySetupForbidden');
 		if (isset($post['install']) and $post['install']=='true') {
+			$time = microtime(true);
 			var_dump('setupHelper->install');
 			// We have to launch the installation process :
 			$e = $this->setupHelper->install($post);
 			$errors = ['errors' => $e];
 			var_dump($errors);
+			var_dump('INSTALLING TOOK ' . (microtime(true) - $time));
 
 			if (count($e) > 0) {
 				$options = array_merge($opts, $post, $errors);

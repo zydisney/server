@@ -524,7 +524,7 @@ class MigrationService {
 				var_dump('performDropTableCalls', microtime(true) - $stepTime);
 				$stepTime = microtime(true);
 			}
-			$this->lastSchema = null;
+			$this->lastSchema = clone $targetSchema;
 		}
 
 		if (!$schemaOnly) {

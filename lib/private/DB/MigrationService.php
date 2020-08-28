@@ -479,7 +479,7 @@ class MigrationService {
 		$stepTime = $time;
 		if (!$schemaOnly) {
 			$instance->preSchemaChange($this->output, function () {
-				$this->lastSchema = $this->lastSchema ?: $this->connection->createSchema();
+				$this->lastSchema = clone ($this->lastSchema ?: $this->connection->createSchema());
 				return new SchemaWrapper($this->connection, $this->lastSchema);
 			}, ['tablePrefix' => $this->connection->getPrefix()]);
 		}
@@ -487,7 +487,7 @@ class MigrationService {
 		$stepTime = microtime(true);
 
 		$toSchema = $instance->changeSchema($this->output, function () {
-			$this->lastSchema = $this->lastSchema ?: $this->connection->createSchema();
+			$this->lastSchema = clone ($this->lastSchema ?: $this->connection->createSchema());
 			return new SchemaWrapper($this->connection, $this->lastSchema);
 		}, ['tablePrefix' => $this->connection->getPrefix()]);
 		$this->logIfTooSlow($version, 'changeSchema', $stepTime);
@@ -497,7 +497,7 @@ class MigrationService {
 			$targetSchema = $toSchema->getWrappedSchema();
 			if ($this->checkOracle) {
 				$cTime = microtime(true);
-				$this->lastSchema = $this->lastSchema ?: $this->connection->createSchema();
+				$this->lastSchema = clone ($this->lastSchema ?: $this->connection->createSchema());
 				$this->logIfTooSlow($version, 'createSchema', $cTime);
 				$cTime = microtime(true);
 				$this->ensureOracleIdentifierLengthLimit($this->lastSchema, $targetSchema, strlen($this->connection->getPrefix()));
@@ -506,7 +506,7 @@ class MigrationService {
 			}
 			$this->logIfTooSlow($version, 'checkOracle', $stepTime);
 			$stepTime = microtime(true);
-			$this->lastSchema = $this->lastSchema ?: $this->connection->createSchema();
+			$this->lastSchema = clone ($this->lastSchema ?: $this->connection->createSchema());
 
 			var_dump('old_tables', $targetSchema->getTableNames());
 			var_dump('new_tables', $this->lastSchema->getTableNames());
@@ -522,7 +522,7 @@ class MigrationService {
 
 		if (!$schemaOnly) {
 			$instance->postSchemaChange($this->output, function () {
-				$this->lastSchema = $this->lastSchema ?: $this->connection->createSchema();
+				$this->lastSchema = clone ($this->lastSchema ?: $this->connection->createSchema());
 				return new SchemaWrapper($this->connection, $this->lastSchema);
 			}, ['tablePrefix' => $this->connection->getPrefix()]);
 		}

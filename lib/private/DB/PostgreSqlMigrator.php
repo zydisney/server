@@ -28,10 +28,11 @@ class PostgreSqlMigrator extends Migrator {
 	/**
 	 * @param Schema $targetSchema
 	 * @param \Doctrine\DBAL\Connection $connection
+	 * @param Schema|null $sourceSchema
 	 * @return \Doctrine\DBAL\Schema\SchemaDiff
 	 */
-	protected function getDiff(Schema $targetSchema, \Doctrine\DBAL\Connection $connection) {
-		$schemaDiff = parent::getDiff($targetSchema, $connection);
+	protected function getDiff(Schema $targetSchema, \Doctrine\DBAL\Connection $connection, ?Schema $sourceSchema = null) {
+		$schemaDiff = parent::getDiff($targetSchema, $connection, $sourceSchema);
 
 		foreach ($schemaDiff->changedTables as $tableDiff) {
 			// fix default value in brackets - pg 9.4 is returning a negative default value in ()

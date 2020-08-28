@@ -112,11 +112,12 @@ class OracleMigrator extends Migrator {
 	/**
 	 * @param Schema $targetSchema
 	 * @param \Doctrine\DBAL\Connection $connection
+	 * @param Schema|null $sourceSchema
 	 * @return \Doctrine\DBAL\Schema\SchemaDiff
 	 * @throws DBALException
 	 */
-	protected function getDiff(Schema $targetSchema, \Doctrine\DBAL\Connection $connection) {
-		$schemaDiff = parent::getDiff($targetSchema, $connection);
+	protected function getDiff(Schema $targetSchema, \Doctrine\DBAL\Connection $connection, ?Schema $sourceSchema = null) {
+		$schemaDiff = parent::getDiff($targetSchema, $connection, $sourceSchema);
 
 		// oracle forces us to quote the identifiers
 		$schemaDiff->newTables = array_map(function (Table $table) {

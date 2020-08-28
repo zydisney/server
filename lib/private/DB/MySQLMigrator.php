@@ -33,14 +33,15 @@ class MySQLMigrator extends Migrator {
 	/**
 	 * @param Schema $targetSchema
 	 * @param \Doctrine\DBAL\Connection $connection
+	 * @param Schema|null $sourceSchema
 	 * @return \Doctrine\DBAL\Schema\SchemaDiff
 	 */
-	protected function getDiff(Schema $targetSchema, \Doctrine\DBAL\Connection $connection) {
+	protected function getDiff(Schema $targetSchema, \Doctrine\DBAL\Connection $connection, ?Schema $sourceSchema = null) {
 		$platform = $connection->getDatabasePlatform();
 		$platform->registerDoctrineTypeMapping('enum', 'string');
 		$platform->registerDoctrineTypeMapping('bit', 'string');
 
-		$schemaDiff = parent::getDiff($targetSchema, $connection);
+		$schemaDiff = parent::getDiff($targetSchema, $connection, $sourceSchema);
 
 		// identifiers need to be quoted for mysql
 		foreach ($schemaDiff->changedTables as $tableDiff) {

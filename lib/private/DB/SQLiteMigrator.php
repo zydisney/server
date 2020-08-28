@@ -72,9 +72,10 @@ class SQLiteMigrator extends Migrator {
 	/**
 	 * @param Schema $targetSchema
 	 * @param \Doctrine\DBAL\Connection $connection
+	 * @param Schema|null $sourceSchema
 	 * @return \Doctrine\DBAL\Schema\SchemaDiff
 	 */
-	protected function getDiff(Schema $targetSchema, \Doctrine\DBAL\Connection $connection) {
+	protected function getDiff(Schema $targetSchema, \Doctrine\DBAL\Connection $connection, ?Schema $sourceSchema = null) {
 		$platform = $connection->getDatabasePlatform();
 		$platform->registerDoctrineTypeMapping('tinyint unsigned', 'integer');
 		$platform->registerDoctrineTypeMapping('smallint unsigned', 'integer');
@@ -89,6 +90,6 @@ class SQLiteMigrator extends Migrator {
 			}
 		}
 
-		return parent::getDiff($targetSchema, $connection);
+		return parent::getDiff($targetSchema, $connection, $sourceSchema);
 	}
 }

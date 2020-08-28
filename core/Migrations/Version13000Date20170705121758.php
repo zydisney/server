@@ -41,7 +41,12 @@ class Version13000Date20170705121758 extends SimpleMigrationStep {
 	public function changeSchema(IOutput $output, \Closure $schemaClosure, array $options) {
 		/** @var ISchemaWrapper $schema */
 		$schema = $schemaClosure();
+		$clone = clone $schema;
 
+		var_dump('aaa');
+		var_dump($schema->getTableNames());
+		var_dump($clone->getTableNames());
+		var_dump(\OC::$server->getDatabaseConnection()->createSchema()->getTableNames());
 		if (!$schema->hasTable('personal_sections')) {
 			$table = $schema->createTable('personal_sections');
 
@@ -62,6 +67,10 @@ class Version13000Date20170705121758 extends SimpleMigrationStep {
 			$table->setPrimaryKey(['id'], 'personal_sections_id_index');
 			$table->addUniqueIndex(['class'], 'personal_sections_class');
 		}
+		var_dump('bbbb');
+		var_dump($schema->getTableNames());
+		var_dump($clone->getTableNames());
+		var_dump(\OC::$server->getDatabaseConnection()->createSchema()->getTableNames());
 
 		if (!$schema->hasTable('personal_settings')) {
 			$table = $schema->createTable('personal_settings');
@@ -89,6 +98,10 @@ class Version13000Date20170705121758 extends SimpleMigrationStep {
 			$table->addUniqueIndex(['class'], 'personal_settings_class');
 			$table->addIndex(['section'], 'personal_settings_section');
 		}
+		var_dump('cccc');
+		var_dump($schema->getTableNames());
+		var_dump($clone->getTableNames());
+		var_dump(\OC::$server->getDatabaseConnection()->createSchema()->getTableNames());
 
 		return $schema;
 	}

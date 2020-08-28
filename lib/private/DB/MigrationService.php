@@ -508,8 +508,8 @@ class MigrationService {
 			$stepTime = microtime(true);
 			$this->lastSchema = clone ($this->lastSchema ?: $this->connection->createSchema());
 
-			var_dump('old_tables', $targetSchema->getTableNames());
 			var_dump('new_tables', $this->lastSchema->getTableNames());
+			var_dump('new_tables', $targetSchema->getTableNames());
 
 			$this->connection->migrateToSchema($targetSchema, $this->lastSchema);
 			$this->logIfTooSlow($version, 'migrateToSchema', $stepTime);

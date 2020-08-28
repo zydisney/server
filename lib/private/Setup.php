@@ -62,6 +62,7 @@ use OCP\IGroup;
 use OCP\IL10N;
 use OCP\ILogger;
 use OCP\Security\ISecureRandom;
+use Psr\Log\LoggerInterface;
 
 class Setup {
 	/** @var SystemConfig */
@@ -381,6 +382,7 @@ class Setup {
 			$dbSetup->runMigrations();
 			var_dump('2runMigrations');
 		} catch (Exception $e) {
+			\OC::$server->get(LoggerInterface::class)->logException($e);
 			$error[] = [
 				'error' => 'Error while trying to initialise the database: ' . $e->getMessage(),
 				'hint' => '',

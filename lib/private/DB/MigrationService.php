@@ -507,6 +507,10 @@ class MigrationService {
 			$this->logIfTooSlow($version, 'checkOracle', $stepTime);
 			$stepTime = microtime(true);
 			$this->lastSchema = $this->lastSchema ?: $this->connection->createSchema();
+
+			var_dump('old_tables', $targetSchema->getTableNames());
+			var_dump('new_tables', $this->lastSchema->getTableNames());
+
 			$this->connection->migrateToSchema($targetSchema, $this->lastSchema);
 			$this->logIfTooSlow($version, 'migrateToSchema', $stepTime);
 			$stepTime = microtime(true);

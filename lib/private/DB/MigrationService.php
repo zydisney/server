@@ -483,49 +483,35 @@ class MigrationService {
 				return new SchemaWrapper($this->connection, $this->lastSchema);
 			}, ['tablePrefix' => $this->connection->getPrefix()]);
 		}
-		if ($this->appName === 'twofactor_backupcodes' || $this->appName === 'dav') {
-			var_dump('preSchemaChange: ' . microtime(true) - $stepTime);
-			$stepTime = microtime(true);
-		}
+		$this->logIfTooSlow($version, 'preSchemaChange', $stepTime);
+		$stepTime = microtime(true);
 
 		$toSchema = $instance->changeSchema($this->output, function () {
 			$this->lastSchema = $this->lastSchema ?: $this->connection->createSchema();
 			return new SchemaWrapper($this->connection, $this->lastSchema);
 		}, ['tablePrefix' => $this->connection->getPrefix()]);
-		if ($this->appName === 'twofactor_backupcodes' || $this->appName === 'dav') {
-			var_dump('changeSchema: ' . (microtime(true) - $stepTime));
-			$stepTime = microtime(true);
-		}
+		$this->logIfTooSlow($version, 'changeSchema', $stepTime);
+		$stepTime = microtime(true);
 
 		if ($toSchema instanceof SchemaWrapper) {
 			$targetSchema = $toSchema->getWrappedSchema();
 			if ($this->checkOracle) {
 				$cTime = microtime(true);
 				$this->lastSchema = $this->lastSchema ?: $this->connection->createSchema();
-				if ($this->appName === 'twofactor_backupcodes' || $this->appName === 'dav') {
-					var_dump('$this->connection->createSchema(): ' . (microtime(true) - $cTime));
-					$cTime = microtime(true);
-				}
+				$this->logIfTooSlow($version, 'createSchema', $cTime);
+				$cTime = microtime(true);
 				$this->ensureOracleIdentifierLengthLimit($this->lastSchema, $targetSchema, strlen($this->connection->getPrefix()));
-				if ($this->appName === 'twofactor_backupcodes' || $this->appName === 'dav') {
-					var_dump('$this->ensureOracleIdentifierLengthLimit(): ' . (microtime(true) - $cTime));
-					$stepTime = microtime(true);
-				}
-			}
-			if ($this->appName === 'twofactor_backupcodes' || $this->appName === 'dav') {
-				var_dump('$this->checkOracle: ' . (microtime(true) - $stepTime));
+				$this->logIfTooSlow($version, 'ensureOracleIdentifierLengthLimit', $cTime);
 				$stepTime = microtime(true);
 			}
+			$this->logIfTooSlow($version, 'checkOracle', $stepTime);
+			$stepTime = microtime(true);
 			$this->connection->migrateToSchema($targetSchema);
-			if ($this->appName === 'twofactor_backupcodes' || $this->appName === 'dav') {
-				var_dump('migrateToSchema: ' . (microtime(true) - $stepTime));
-				$stepTime = microtime(true);
-			}
+			$this->logIfTooSlow($version, 'migrateToSchema', $stepTime);
+			$stepTime = microtime(true);
 			$toSchema->performDropTableCalls();
-			if ($this->appName === 'twofactor_backupcodes' || $this->appName === 'dav') {
-				var_dump('performDropTableCalls: ' . (microtime(true) - $stepTime));
-				$stepTime = microtime(true);
-			}
+			$this->logIfTooSlow($version, 'performDropTableCalls', $stepTime);
+			$stepTime = microtime(true);
 			$this->lastSchema = null;
 		}
 
@@ -535,12 +521,17 @@ class MigrationService {
 				return new SchemaWrapper($this->connection, $this->lastSchema);
 			}, ['tablePrefix' => $this->connection->getPrefix()]);
 		}
-		if ($this->appName === 'twofactor_backupcodes' || $this->appName === 'dav') {
-			var_dump('postSchemaChange: ' . (microtime(true) - $stepTime));
-			var_dump('total: ' . (microtime(true) - $time));
-		}
+		$this->logIfTooSlow($version, 'postSchemaChange', $stepTime);
+		$this->logIfTooSlow($version, 'total', $time);
 
 		$this->markAsExecuted($version);
+	}
+
+	protected function logIfTooSlow(string $version, string $message, float $start): void {
+		$duration = microtime(true) - $start;
+		if ($message === 'total' || $duration > 1) {
+			var_dump($this->appName . '#' . $version . ' ' . $message . ': ' . (microtime(true) - $start));
+		}
 	}
 
 	public function ensureOracleIdentifierLengthLimit(Schema $sourceSchema, Schema $targetSchema, int $prefixLength) {

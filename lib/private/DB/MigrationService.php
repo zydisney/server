@@ -410,13 +410,28 @@ class MigrationService {
 	 * @throws \InvalidArgumentException
 	 */
 	public function migrate($to = 'latest', $schemaOnly = false) {
-		$this->lastSchema = null;
+		$this->lastSchema = $targetSchema = null;
+
+		// We are installing, so we can reuse the schema for all this steps.
+		// Generating the schema can take multiple seconds and would otherwise
+		// be done multiple times per migrations, making install unnecessary slow.
+		if ($schemaOnly) {
+			$targetSchema = $this->connection->createSchema();
+		}
 
 		$time = microtime(true);
 		// read known migrations
 		$toBeExecuted = $this->getMigrationsToExecute($to);
 		foreach ($toBeExecuted as $version) {
-			$this->executeStep($version, $schemaOnly);
+			$targetSchema = $this->executeStep($version, $schemaOnly, $schemaOnly ? $targetSchema : null);
+		}
+
+		if ($schemaOnly) {
+			$sourceSchema = $this->connection->createSchema();
+			if ($this->checkOracle) {
+				$this->ensureOracleIdentifierLengthLimit($sourceSchema, $targetSchema, strlen($this->connection->getPrefix()));
+			}
+			$this->connection->migrateToSchema($targetSchema, $sourceSchema);
 		}
 
 		var_dump('TOTAL TIME FOR ' . $this->appName . ': ' . (microtime(true) - $time));
@@ -469,65 +484,45 @@ class MigrationService {
 	 *
 	 * @param string $version
 	 * @param bool $schemaOnly
+	 * @param Schema|null $targetSchema Only used when $schemaOnly is true
 	 * @throws \InvalidArgumentException
 	 */
-	public function executeStep($version, $schemaOnly = false) {
+	public function executeStep($version, $schemaOnly = false, ?Schema $targetSchema = null) {
 		$instance = $this->createInstance($version);
 
-		$time = microtime(true);
-		var_dump($version);
-		$stepTime = $time;
 		if (!$schemaOnly) {
 			$instance->preSchemaChange($this->output, function () {
-				$this->lastSchema = clone ($this->lastSchema ?: $this->connection->createSchema());
-				return new SchemaWrapper($this->connection, $this->lastSchema);
+				return new SchemaWrapper($this->connection);
 			}, ['tablePrefix' => $this->connection->getPrefix()]);
 		}
-		$this->logIfTooSlow($version, 'preSchemaChange', $stepTime);
-		$stepTime = microtime(true);
 
-		$toSchema = $instance->changeSchema($this->output, function () {
-			$this->lastSchema = clone ($this->lastSchema ?: $this->connection->createSchema());
-			return new SchemaWrapper($this->connection, $this->lastSchema);
+		$toSchema = $instance->changeSchema($this->output, function () use ($targetSchema) {
+			return new SchemaWrapper($this->connection, $targetSchema);
 		}, ['tablePrefix' => $this->connection->getPrefix()]);
-		$this->logIfTooSlow($version, 'changeSchema', $stepTime);
-		$stepTime = microtime(true);
+
+		if ($schemaOnly) {
+			$this->markAsExecuted($version);
+			if ($toSchema instanceof SchemaWrapper) {
+				return $toSchema->getWrappedSchema();
+			}
+		}
 
 		if ($toSchema instanceof SchemaWrapper) {
 			$targetSchema = $toSchema->getWrappedSchema();
 			if ($this->checkOracle) {
-				$cTime = microtime(true);
 				$this->lastSchema = clone ($this->lastSchema ?: $this->connection->createSchema());
-				$this->logIfTooSlow($version, 'createSchema', $cTime);
-				$cTime = microtime(true);
 				$this->ensureOracleIdentifierLengthLimit($this->lastSchema, $targetSchema, strlen($this->connection->getPrefix()));
-				$this->logIfTooSlow($version, 'ensureOracleIdentifierLengthLimit', $cTime);
-				$stepTime = microtime(true);
 			}
-			$this->logIfTooSlow($version, 'checkOracle', $stepTime);
-			$stepTime = microtime(true);
-			$this->lastSchema = clone ($this->lastSchema ?: $this->connection->createSchema());
-
-			var_dump('new_tables', $this->lastSchema->getTableNames());
-			var_dump('new_tables', $targetSchema->getTableNames());
-
-			$this->connection->migrateToSchema($targetSchema, $this->lastSchema);
-			$this->logIfTooSlow($version, 'migrateToSchema', $stepTime);
-			$stepTime = microtime(true);
+			$this->connection->migrateToSchema($targetSchema);
 			$toSchema->performDropTableCalls();
-			$this->logIfTooSlow($version, 'performDropTableCalls', $stepTime);
-			$stepTime = microtime(true);
 			$this->lastSchema = null;
 		}
 
 		if (!$schemaOnly) {
 			$instance->postSchemaChange($this->output, function () {
-				$this->lastSchema = clone ($this->lastSchema ?: $this->connection->createSchema());
-				return new SchemaWrapper($this->connection, $this->lastSchema);
+				return new SchemaWrapper($this->connection);
 			}, ['tablePrefix' => $this->connection->getPrefix()]);
 		}
-		$this->logIfTooSlow($version, 'postSchemaChange', $stepTime);
-		$this->logIfTooSlow($version, 'total', $time);
 
 		$this->markAsExecuted($version);
 	}

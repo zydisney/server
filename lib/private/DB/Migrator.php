@@ -79,10 +79,11 @@ class Migrator {
 
 	/**
 	 * @param \Doctrine\DBAL\Schema\Schema $targetSchema
+	 * @param \Doctrine\DBAL\Schema\Schema|null $sourceSchema
 	 */
-	public function migrate(Schema $targetSchema) {
+	public function migrate(Schema $targetSchema, ?Schema $sourceSchema = null) {
 		$this->noEmit = true;
-		$this->applySchema($targetSchema);
+		$this->applySchema($targetSchema, null, $sourceSchema);
 	}
 
 	/**
@@ -205,10 +206,11 @@ class Migrator {
 	/**
 	 * @param Schema $targetSchema
 	 * @param \Doctrine\DBAL\Connection $connection
+	 * @param Schema|null $sourceSchema
 	 * @return \Doctrine\DBAL\Schema\SchemaDiff
 	 * @throws DBALException
 	 */
-	protected function getDiff(Schema $targetSchema, \Doctrine\DBAL\Connection $connection) {
+	protected function getDiff(Schema $targetSchema, \Doctrine\DBAL\Connection $connection, ?Schema $sourceSchema) {
 		// adjust varchar columns with a length higher then getVarcharMaxLength to clob
 		foreach ($targetSchema->getTables() as $table) {
 			foreach ($table->getColumns() as $column) {
@@ -223,7 +225,7 @@ class Migrator {
 
 		$filterExpression = $this->getFilterExpression();
 		$this->connection->getConfiguration()->setFilterSchemaAssetsExpression($filterExpression);
-		$sourceSchema = $connection->getSchemaManager()->createSchema();
+		$sourceSchema = $sourceSchema ?: $connection->getSchemaManager()->createSchema();
 
 		// remove tables we don't know about
 		foreach ($sourceSchema->getTables() as $table) {
@@ -245,13 +247,14 @@ class Migrator {
 	/**
 	 * @param \Doctrine\DBAL\Schema\Schema $targetSchema
 	 * @param \Doctrine\DBAL\Connection $connection
+	 * @param \Doctrine\DBAL\Schema\Schema|null $sourceSchema
 	 */
-	protected function applySchema(Schema $targetSchema, \Doctrine\DBAL\Connection $connection = null) {
+	protected function applySchema(Schema $targetSchema, \Doctrine\DBAL\Connection $connection = null, ?Schema $sourceSchema = null) {
 		if (is_null($connection)) {
 			$connection = $this->connection;
 		}
 
-		$schemaDiff = $this->getDiff($targetSchema, $connection);
+		$schemaDiff = $this->getDiff($targetSchema, $connection, $sourceSchema);
 
 		$connection->beginTransaction();
 		$sqls = $schemaDiff->toSql($connection->getDatabasePlatform());

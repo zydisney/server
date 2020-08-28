@@ -444,10 +444,11 @@ class Connection extends ReconnectWrapper implements IDBConnection {
 	 * Migrate the database to the given schema
 	 *
 	 * @param Schema $toSchema
+	 * @param Schema|null $fromSchema
 	 */
-	public function migrateToSchema(Schema $toSchema) {
+	public function migrateToSchema(Schema $toSchema, ?Schema $fromSchema = null) {
 		$schemaManager = new MDB2SchemaManager($this);
 		$migrator = $schemaManager->getMigrator();
-		$migrator->migrate($toSchema);
+		$migrator->migrate($toSchema, $fromSchema);
 	}
 }

@@ -299,7 +299,8 @@ interface IDBConnection {
 	 * Migrate the database to the given schema
 	 *
 	 * @param Schema $toSchema
+	 * @param Schema|null $fromSchema
 	 * @since 13.0.0
 	 */
-	public function migrateToSchema(Schema $toSchema);
+	public function migrateToSchema(Schema $toSchema, ?Schema $fromSchema = null);
 }

@@ -419,7 +419,7 @@ class MigrationService {
 			$this->executeStep($version, $schemaOnly);
 		}
 
-		var_dump('TOTAL TIME FOR ' . $this->appName . ': ' .microtime(true) - $time);
+		var_dump('TOTAL TIME FOR ' . $this->appName . ': ' . (microtime(true) - $time));
 	}
 
 	/**
@@ -493,7 +493,7 @@ class MigrationService {
 			return new SchemaWrapper($this->connection, $this->lastSchema);
 		}, ['tablePrefix' => $this->connection->getPrefix()]);
 		if ($this->appName === 'twofactor_backupcodes' || $this->appName === 'dav') {
-			var_dump('changeSchema', microtime(true) - $stepTime);
+			var_dump('changeSchema: ' . (microtime(true) - $stepTime));
 			$stepTime = microtime(true);
 		}
 
@@ -503,27 +503,27 @@ class MigrationService {
 				$cTime = microtime(true);
 				$this->lastSchema = $this->lastSchema ?: $this->connection->createSchema();
 				if ($this->appName === 'twofactor_backupcodes' || $this->appName === 'dav') {
-					var_dump('$this->connection->createSchema(): ' . microtime(true) - $cTime);
+					var_dump('$this->connection->createSchema(): ' . (microtime(true) - $cTime));
 					$cTime = microtime(true);
 				}
 				$this->ensureOracleIdentifierLengthLimit($this->lastSchema, $targetSchema, strlen($this->connection->getPrefix()));
 				if ($this->appName === 'twofactor_backupcodes' || $this->appName === 'dav') {
-					var_dump('$this->ensureOracleIdentifierLengthLimit(): ' . microtime(true) - $cTime);
+					var_dump('$this->ensureOracleIdentifierLengthLimit(): ' . (microtime(true) - $cTime));
 					$stepTime = microtime(true);
 				}
 			}
 			if ($this->appName === 'twofactor_backupcodes' || $this->appName === 'dav') {
-				var_dump('$this->checkOracle: ' .microtime(true) - $stepTime);
+				var_dump('$this->checkOracle: ' . (microtime(true) - $stepTime));
 				$stepTime = microtime(true);
 			}
 			$this->connection->migrateToSchema($targetSchema);
 			if ($this->appName === 'twofactor_backupcodes' || $this->appName === 'dav') {
-				var_dump('migrateToSchema: ' .microtime(true) - $stepTime);
+				var_dump('migrateToSchema: ' . (microtime(true) - $stepTime));
 				$stepTime = microtime(true);
 			}
 			$toSchema->performDropTableCalls();
 			if ($this->appName === 'twofactor_backupcodes' || $this->appName === 'dav') {
-				var_dump('performDropTableCalls: ' .microtime(true) - $stepTime);
+				var_dump('performDropTableCalls: ' . (microtime(true) - $stepTime));
 				$stepTime = microtime(true);
 			}
 			$this->lastSchema = null;
@@ -536,8 +536,8 @@ class MigrationService {
 			}, ['tablePrefix' => $this->connection->getPrefix()]);
 		}
 		if ($this->appName === 'twofactor_backupcodes' || $this->appName === 'dav') {
-			var_dump('postSchemaChange: ' .microtime(true) - $stepTime);
-			var_dump('total: ' .microtime(true) - $time);
+			var_dump('postSchemaChange: ' . (microtime(true) - $stepTime));
+			var_dump('total: ' . (microtime(true) - $time));
 		}
 
 		$this->markAsExecuted($version);

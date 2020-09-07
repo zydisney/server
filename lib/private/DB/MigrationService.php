@@ -467,6 +467,7 @@ class MigrationService {
 	public function executeStep($version, $schemaOnly = false) {
 		$instance = $this->createInstance($version);
 
+		var_dump($version);
 		if (!$schemaOnly) {
 			$instance->preSchemaChange($this->output, function () {
 				return new SchemaWrapper($this->connection);

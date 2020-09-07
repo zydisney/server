@@ -147,16 +147,16 @@ class Manager implements IManager {
 	public function getAllConfiguredEvents() {
 		$query = $this->connection->getQueryBuilder();
 
-		$query->select('class', 'entity', 'events')
+		$query->select('class', 'entity')
+			->selectAlias($query->expr()->castColumn('events', IQueryBuilder::PARAM_STR), 'casted_events')
 			->from('flow_operations')
 			->where($query->expr()->neq('events', $query->createNamedParameter('[]'), IQueryBuilder::PARAM_STR))
-			->groupBy('class', 'entity')
-			->addGroupBy($query->expr()->castColumn('events', IQueryBuilder::PARAM_STR));
+			->groupBy('class', 'entity', 'casted_events');
 
 		$result = $query->execute();
 		$operations = [];
 		while ($row = $result->fetch()) {
-			$eventNames = \json_decode($row['events']);
+			$eventNames = \json_decode($row['casted_events']);
 
 			$operation = $row['class'];
 			$entity =  $row['entity'];

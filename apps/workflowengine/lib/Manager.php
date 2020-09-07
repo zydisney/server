@@ -155,7 +155,7 @@ class Manager implements IManager {
 		$result = $query->execute();
 		$operations = [];
 		while ($row = $result->fetch()) {
-			$eventNames = \json_decode($row['casted_events']);
+			$eventNames = \json_decode($row['events']);
 
 			$operation = $row['class'];
 			$entity =  $row['entity'];

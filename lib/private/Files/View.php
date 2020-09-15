@@ -1737,6 +1737,16 @@ class View {
 			return $a instanceof SharedMount && (!$b instanceof SharedMount) ? 1 : -1;
 		});
 
+		// if the id is the root of a received share, we can use that as path without
+		// having to make extra cache queries
+		foreach ($mounts as $mount) {
+			if ($mount instanceof SharedMount) {
+				if ($mount->getShare()->getNodeId() === $id) {
+					return $mount->getMountPoint();
+				}
+			}
+		}
+
 		foreach ($mounts as $mount) {
 			/**
 			 * @var \OC\Files\Mount\MountPoint $mount

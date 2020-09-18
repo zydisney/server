@@ -335,6 +335,7 @@ class Storage implements IStorage {
 	 * @return bool
 	 */
 	private function setKey($path, $key) {
+		\OC::$server->getLogger()->error('Trying to write key file to the key storage for ' . $path, ['app' => 'ticket_14417_keyWrite']);
 		$this->keySetPreparation(dirname($path));
 
 		$versionFromBeforeUpdate = $this->config->getSystemValue('version', '0.0.0.0');
@@ -349,7 +350,16 @@ class Storage implements IStorage {
 
 		$result = $this->view->file_put_contents($path, $data);
 
+		if ($result === false) {
+			\OC::$server->getLogger()->error('Failed to write key file to the key storage for ' . $path, ['app' => 'ticket_14417_keyWrite']);
+			return false;
+		}
+
+		\OC::$server->getLogger()->error('Written key file to the key storage for ' . $path . ' with ' . $result, ['app' => 'ticket_14417_keyWrite']);
+
+
 		if (is_int($result) && $result > 0) {
+
 			$this->keyCache[$path] = $key;
 			return true;
 		}

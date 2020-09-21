@@ -557,13 +557,18 @@ class Encryption extends Wrapper {
 		// next highest is end of chunks, one subtracted is last one
 		// we have to read the last chunk, we can't just calculate it (because of padding etc)
 
-		$lastChunkNr = ceil($size / $blockSize) - 1;
+		$lastChunkNr = (int)ceil($size / $blockSize) - 1;
 		// calculate last chunk position
 		$lastChunkPos = ($lastChunkNr * $blockSize);
 		// try to fseek to the last chunk, if it fails we have to read the whole file
-		if (@fseek($stream, $lastChunkPos, SEEK_CUR) === 0) {
-			$newUnencryptedSize += $lastChunkNr * $unencryptedBlockSize;
+		if ($size !== $unencryptedSize) {
+			if (@fseek($stream, $lastChunkPos, SEEK_CUR) === 0) {
+				$newUnencryptedSize += $lastChunkNr * $unencryptedBlockSize;
+			}
+		} else {
+			$lastChunkNr = 0;
 		}
+
 
 		$lastChunkContentEncrypted = '';
 		$count = $blockSize;
@@ -575,6 +580,7 @@ class Encryption extends Wrapper {
 			if (strlen($lastChunkContentEncrypted) > $blockSize) {
 				$newUnencryptedSize += $unencryptedBlockSize;
 				$lastChunkContentEncrypted = substr($lastChunkContentEncrypted, $blockSize);
+				$lastChunkNr++;
 			}
 		}
 

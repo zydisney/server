@@ -287,7 +287,6 @@ class Trashbin {
 
 		$connection = \OC::$server->getDatabaseConnection();
 		$connection->beginTransaction();
-		$trashStorage->getUpdater()->renameFromStorage($sourceStorage, $sourceInternalPath, $trashInternalPath);
 
 		try {
 			$moveSuccessful = true;
@@ -304,7 +303,9 @@ class Trashbin {
 			\OC::$server->getLogger()->error('Couldn\'t move ' . $file_path . ' to the trash bin', ['app' => 'files_trashbin']);
 		}
 
-		if ($sourceStorage->file_exists($sourceInternalPath)) { // failed to delete the original file, abort
+		$trashStorage->getUpdater()->renameFromStorage($sourceStorage, $sourceInternalPath, $trashInternalPath);
+
+		if (!$moveSuccessful && $sourceStorage->file_exists($sourceInternalPath)) { // failed to delete the original file, abort
 			if ($sourceStorage->is_dir($sourceInternalPath)) {
 				$sourceStorage->rmdir($sourceInternalPath);
 			} else {

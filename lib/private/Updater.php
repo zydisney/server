@@ -208,7 +208,7 @@ class Updater extends BasicEmitter {
 				'11.0.0.10',
 			], true)) {
 				$currentVendor = 'nextcloud';
-			} else if (isset($allowedPreviousVersions['owncloud'][$oldVersion])) {
+			} else if (isset($allowedPreviousVersions['owncloud'][$oldVersion]) || isset($allowedPreviousVersions['owncloud'][$majorMinor])) {
 				$currentVendor = 'owncloud';
 			}
 		}

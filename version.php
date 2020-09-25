@@ -40,6 +40,7 @@ $OC_VersionCanBeUpgradedFrom = [
 		'13.0' => true,
 	],
 	'owncloud' => [
+		'10.5' => true,
 	],
 ];
 

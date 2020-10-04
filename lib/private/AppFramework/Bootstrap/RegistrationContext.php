@@ -72,6 +72,9 @@ class RegistrationContext {
 	/** @var array[] */
 	private $initialStates = [];
 
+	/** @var array[] */
+	private $previewProviders = [];
+
 	/** @var ILogger */
 	private $logger;
 
@@ -174,6 +177,14 @@ class RegistrationContext {
 					$class
 				);
 			}
+
+			public function registerPreviewProvider(string $class, string $mimeTypeRegex): void {
+				$this->context->registerPreviewProvider(
+					$this->appId,
+					$class,
+					$mimeTypeRegex
+				);
+			}
 		};
 	}
 
@@ -257,6 +268,14 @@ class RegistrationContext {
 		$this->initialStates[] = [
 			'appId' => $appId,
 			'class' => $class,
+		];
+	}
+
+	public function registerPreviewProvider(string $appId, string $class, string $mimeTypeRegex): void {
+		$this->previewProviders[] = [
+			'appId' => $appId,
+			'class' => $class,
+			'mimeTypeRegex' => $mimeTypeRegex,
 		];
 	}
 
@@ -432,9 +451,16 @@ class RegistrationContext {
 	}
 
 	/**
-	 * @erturn array[]
+	 * @return array[]
 	 */
 	public function getInitialStates(): array {
 		return $this->initialStates;
+	}
+
+	/**
+	 * @return array[]
+	 */
+	public function getPreviewProviders(): array {
+		return $this->previewProviders;
 	}
 }

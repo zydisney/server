@@ -272,6 +272,22 @@ class LDAP implements ILDAPWrapper {
 		return $this->invokeLDAPMethod('set_option', $link, $option, $value);
 	}
 
+	public function getOption($link, $option, &$value): bool {
+		$this->preFunctionCall(
+			'ldap_get_option',
+			[$link, $option, $value]
+		);
+
+		// need to call directly due to the referenced var
+		$result = ldap_get_option($link, $option, $value);
+
+		if ($this->isResultFalse($result)) {
+			$this->postFunctionCall();
+		}
+
+		return $result;
+	}
+
 	/**
 	 * @param LDAP $link
 	 * @return mixed|true

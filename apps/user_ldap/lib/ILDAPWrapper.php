@@ -184,6 +184,8 @@ interface ILDAPWrapper {
 	 */
 	public function setOption($link, $option, $value);
 
+	public function getOption($link, $option, &$value): bool;
+
 	/**
 	 * establish Start TLS
 	 * @param resource $link LDAP link resource

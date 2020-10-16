@@ -1626,7 +1626,21 @@ class Access extends LDAPUtility {
 		if (!$testConnection->setConfiguration($credentials)) {
 			return false;
 		}
-		return $testConnection->bind();
+		$loginSuccess = $testConnection->bind();
+		if (!$loginSuccess) {
+			// FIXME: reference gets lost when called like this.
+			// FIXME: var is being replaced by ExceptionsSerializer.
+			// extError looks like this: 80090308: LdapErr: DSID-0C0903D3, comment: AcceptSecurityContext error, data 52e, v3839 (normal wrong password) – data part is important
+			// TODO: compare with openldap (normal wrong password: null), samba4
+			if ($this->ldap->getOption($testConnection->getConnectionResource(), LDAP_OPT_DIAGNOSTIC_MESSAGE, $extError)) {
+				ldap_get_option($testConnection->getConnectionResource(), LDAP_OPT_DIAGNOSTIC_MESSAGE, $extError);
+				\OC::$server->getLogger()->warning('login ext error: {e}', [
+					'app' => 'user_ldap',
+					$extError
+				]);
+			}
+		}
+		return $loginSuccess;
 	}
 
 	/**

@@ -16,7 +16,7 @@ jobs:
 
     services:
       oracle:
-        image: deepdiver/oracle-xe-11g # "wnameless/oracle-xe-11g-r2"
+        image: deepdiver/docker-oracle-xe-11g # "wnameless/oracle-xe-11g-r2"
         ports:
           - "1521:1521"
 

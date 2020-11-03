@@ -48,7 +48,7 @@ jobs:
 
       - name: Run phpunit
         run: |
-          phpunit --configuration phpunit-autotest.xml --group DB,SLOWDB
+          cd tests && phpunit --configuration phpunit-autotest.xml --group DB,SLOWDB
 
-      - name: Run tests
-        run: NOCOVERAGE=true TEST_SELECTION=DB ./autotest.sh oci
+        #- name: Run tests
+        #  run: NOCOVERAGE=true TEST_SELECTION=DB ./autotest.sh oci

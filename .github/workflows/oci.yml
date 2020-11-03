@@ -37,8 +37,11 @@ jobs:
         with:
           php-version: "${{ matrix.php-version }}"
           extensions: mbstring, iconv, fileinfo, intl, sqlite, pdo_sqlite, oci8
-          tools: phpunit:8
+          tools: phpunit:8.5.2
           coverage: none
+
+      - name: Run tests
+        run: NOCOVERAGE=true TEST_SELECTION=DB ./autotest.sh sqlite
 
       - name: Set up Nextcloud
         run: |

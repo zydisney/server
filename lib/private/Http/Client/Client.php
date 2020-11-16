@@ -298,7 +298,8 @@ class Client implements IClient {
 			unset($options['body']);
 		}
 		$response = $this->client->request('post', $uri, $this->buildRequestOptions($options));
-		return new Response($response);
+		$isStream = isset($options['stream']) && $options['stream'];
+		return new Response($response, $isStream);
 	}
 
 	/**

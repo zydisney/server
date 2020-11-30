@@ -421,6 +421,10 @@ class Scanner extends BasicEmitter implements IScanner {
 			try {
 				$existingData = isset($existingChildren[$file]) ? $existingChildren[$file] : false;
 				$data = $this->scanFile($child, $reuse, $folderId, $existingData, $lock, $fileMeta);
+				if (is_array($data) && !(isset($data['size']) || isset($data['mimetype']) || isset($data['fileid']))) {
+					\OC::$server->getLogger()->logException(new \Exception("Invalid data returned from scanFile while scanning $path: " . json_encode($data)));
+					continue;
+				}
 				if ($data) {
 					if ($data['mimetype'] === 'httpd/unix-directory' and $recursive === self::SCAN_RECURSIVE) {
 						$childQueue[$child] = $data['fileid'];

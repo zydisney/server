@@ -382,6 +382,7 @@ class Root extends Folder implements IRootFolder {
 				$folder = $this->get('/' . $userId . '/files');
 			} catch (NotFoundException $e) {
 				if (!$this->nodeExists('/' . $userId)) {
+					\OC::$server->getLogger()->warning("Creating user root folder for $userId during getUserFolder");
 					$this->newFolder('/' . $userId);
 				}
 				$folder = $this->newFolder('/' . $userId . '/files');

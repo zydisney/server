@@ -441,6 +441,7 @@ class Filesystem {
 			self::getMountManager()->addMount($homeMount);
 
 			if ($homeMount->getStorageRootId() === -1) {
+				\OC::$server->getLogger()->warning("Creating user root folder for $user during filesystem setup");
 				$homeMount->getStorage()->mkdir('');
 				$homeMount->getStorage()->getScanner()->scan('');
 			}

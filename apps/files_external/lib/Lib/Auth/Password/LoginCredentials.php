@@ -99,7 +99,11 @@ class LoginCredentials extends AuthMechanism {
 		}
 		$credentials = $this->getCredentials($user);
 
-		$storage->setBackendOption('user', $credentials['user']);
+		if ($storage->getBackendOption("login_use_uuid") === "1") {
+			$storage->setBackendOption('user', $user->getUID());
+		} else {
+			$storage->setBackendOption('user', $credentials['user']);
+		}
 		$storage->setBackendOption('password', $credentials['password']);
 	}
 }

@@ -122,9 +122,9 @@ class TemplateManager implements ITemplateManager {
 		} catch (\Exception $e) {
 			return [];
 		}
-		return array_filter($userTemplateFolder->getDirectoryListing(), function (File $file) use ($mimetypes) {
+		return array_values(array_filter($userTemplateFolder->getDirectoryListing(), function (File $file) use ($mimetypes) {
 			return in_array($file->getMimeType(), $mimetypes, true);
-		});
+		}));
 	}
 
 	/**

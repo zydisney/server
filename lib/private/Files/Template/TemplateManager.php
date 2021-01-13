@@ -33,6 +33,7 @@ use OCP\Files\IRootFolder;
 use OCP\Files\Node;
 use OCP\Files\NotFoundException;
 use OCP\Files\Template\ITemplateManager;
+use OCP\IConfig;
 use OCP\IPreview;
 use OCP\IUserSession;
 use Psr\Log\LoggerInterface;
@@ -43,6 +44,7 @@ class TemplateManager implements ITemplateManager {
 
 	private $rootFolder;
 	private $previewManager;
+	private $config;
 	private $logger;
 	private $userId;
 
@@ -50,10 +52,12 @@ class TemplateManager implements ITemplateManager {
 		IRootFolder $rootFolder,
 		IUserSession $userSession,
 		IPreview $previewManager,
+		IConfig $config,
 		LoggerInterface $logger
 	) {
 		$this->rootFolder = $rootFolder;
 		$this->previewManager = $previewManager;
+		$this->config = $config;
 		$this->logger = $logger;
 		$user = $userSession->getUser();
 		$this->userId = $user ? $user->getUID() : null;
@@ -113,6 +117,7 @@ class TemplateManager implements ITemplateManager {
 	 * @throws \OC\User\NoUserException
 	 */
 	private function getTemplateFolder(): Node {
+		$templatePath = $this->config->getUserValue($this->userId, \OCA\Files\AppInfo\Application::APP_ID, 'templateDirectory', 'Templates/');
 		return $this->rootFolder->getUserFolder($this->userId)->get('Templates/');
 	}
 

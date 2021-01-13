@@ -278,6 +278,7 @@ class SharedStorage extends \OC\Files\Storage\Wrapper\Jail implements ISharedSto
 				$exists = $this->file_exists($path);
 				// if a file exists, updatable permissions are required
 				if ($exists && !$updatable) {
+					\OC::$server->getLogger()->warning("Trying to open non existing shared file without read permissions");
 					return false;
 				}
 

@@ -450,6 +450,7 @@ class SMB extends Common implements INotifyStorage {
 				case 'r':
 				case 'rb':
 					if (!$this->file_exists($path)) {
+						\OC::$server->getLogger()->warning("Trying to open non existing smb file $path for reading");
 						return false;
 					}
 					return $this->share->read($fullPath);
@@ -477,11 +478,13 @@ class SMB extends Common implements INotifyStorage {
 					}
 					if ($this->file_exists($path)) {
 						if (!$this->isUpdatable($path)) {
+							\OC::$server->getLogger()->warning("Trying to open smb file $path for writing without write permissions");
 							return false;
 						}
 						$tmpFile = $this->getCachedFile($path);
 					} else {
 						if (!$this->isCreatable(dirname($path))) {
+							\OC::$server->getLogger()->warning("Trying to open non existing smb file $path for writing without create permissions");
 							return false;
 						}
 						$tmpFile = \OC::$server->getTempManager()->getTemporaryFile($ext);
@@ -496,8 +499,10 @@ class SMB extends Common implements INotifyStorage {
 			}
 			return false;
 		} catch (NotFoundException $e) {
+			\OC::$server->getLogger()->warning("Trying to open non existing smb file $path");
 			return false;
 		} catch (ForbiddenException $e) {
+			\OC::$server->getLogger()->warning("Trying to open smb file $path without enough permissions");
 			return false;
 		} catch (OutOfSpaceException $e) {
 			throw new EntityTooLargeException("not enough available space to create file", 0, $e);

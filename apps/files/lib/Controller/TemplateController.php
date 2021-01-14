@@ -60,4 +60,19 @@ class TemplateController extends OCSController {
 		}
 	}
 
+	/**
+	 * @NoAdminRequired
+	 */
+	public function path(string $templatePath = '', bool $copySystemTemplates = false) {
+		try {
+			$this->templateManager->setTemplatePath($templatePath);
+			if ($copySystemTemplates) {
+				$this->templateManager->initializeTemplateDirectory($templatePath);
+			}
+			return new DataResponse();
+		} catch (GenericFileException $e) {
+			throw new OCSForbiddenException($e->getMessage());
+		}
+	}
+
 }

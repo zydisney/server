@@ -26,25 +26,31 @@ declare(strict_types=1);
 
 namespace OC\Files\Template;
 
+use OC\User\NoUserException;
 use OCP\Files\Folder;
 use OCP\Files\File;
 use OCP\Files\GenericFileException;
 use OCP\Files\IRootFolder;
 use OCP\Files\Node;
 use OCP\Files\NotFoundException;
+use OCP\Files\NotPermittedException;
 use OCP\Files\Template\ITemplateManager;
+use OCP\Files\Template\TemplateType;
 use OCP\IConfig;
+use OCP\IL10N;
 use OCP\IPreview;
 use OCP\IUserSession;
+use OCP\L10N\IFactory;
 use Psr\Log\LoggerInterface;
 
 class TemplateManager implements ITemplateManager {
 
-	private $mimetypes = [];
+	private $types = [];
 
 	private $rootFolder;
 	private $previewManager;
 	private $config;
+	private $l10n;
 	private $logger;
 	private $userId;
 
@@ -53,35 +59,30 @@ class TemplateManager implements ITemplateManager {
 		IUserSession $userSession,
 		IPreview $previewManager,
 		IConfig $config,
+		IFactory $l10n,
 		LoggerInterface $logger
 	) {
 		$this->rootFolder = $rootFolder;
 		$this->previewManager = $previewManager;
 		$this->config = $config;
+		$this->l10n = $l10n->get('lib');
 		$this->logger = $logger;
 		$user = $userSession->getUser();
 		$this->userId = $user ? $user->getUID() : null;
 	}
-	/**
-	 * @inheritDoc
-	 */
-	public function registerTemplateSupport(string $appId, array $mimetypes, string $actionName, string $fileExtension): void {
-		$this->mimetypes[] = [
-			'app' => $appId,
-			'label' => $actionName,
-			'extension' => $fileExtension,
-			'mimetypes' => $mimetypes
-		];
+
+	public function registerTemplateType(TemplateType $templateType): void {
+		$this->types[] = $templateType;
 	}
 
 	public function listMimetypes(): array {
-		return array_map(function (array $entry) {
-			return array_merge($entry, [
+		return array_map(function (TemplateType $entry) {
+			return array_merge($entry->jsonSerialize(), [
 				'templates' => array_map(function (File $file) {
 					return $this->formatFile($file);
-				}, $this->getTemplateFiles($entry['mimetypes']))
+				}, $this->getTemplateFiles($entry->getMimetypes()))
 			]);
-		}, $this->mimetypes);
+		}, $this->types);
 	}
 
 	/**
@@ -101,6 +102,8 @@ class TemplateManager implements ITemplateManager {
 			if ($templatePath !== '') {
 				$template = $userFolder->get($templatePath);
 				$template->copy($targetFile->getPath());
+				// FIXME in order to support custom template creation handling like for Collabora
+				// we should check if there is a TemplateType that supports custom handling here and trigger it
 			}
 			return $this->formatFile($userFolder->get($filePath));
 		} catch (\Exception $e) {
@@ -117,8 +120,7 @@ class TemplateManager implements ITemplateManager {
 	 * @throws \OC\User\NoUserException
 	 */
 	private function getTemplateFolder(): Node {
-		$templatePath = $this->config->getUserValue($this->userId, \OCA\Files\AppInfo\Application::APP_ID, 'templateDirectory', 'Templates/');
-		return $this->rootFolder->getUserFolder($this->userId)->get('Templates/');
+		return $this->rootFolder->getUserFolder($this->userId)->get($this->getTemplatePath());
 	}
 
 	private function getTemplateFiles(array $mimetypes): array {
@@ -127,9 +129,13 @@ class TemplateManager implements ITemplateManager {
 		} catch (\Exception $e) {
 			return [];
 		}
-		return array_values(array_filter($userTemplateFolder->getDirectoryListing(), function (File $file) use ($mimetypes) {
-			return in_array($file->getMimeType(), $mimetypes, true);
-		}));
+		$templates = [];
+		foreach ($mimetypes as $mimetype) {
+			foreach ($userTemplateFolder->searchByMime($mimetype) as $template) {
+				$templates[] = $template;
+			}
+		}
+		return $templates;
 	}
 
 	/**
@@ -150,5 +156,36 @@ class TemplateManager implements ITemplateManager {
 			'type' => $file->getType(),
 			'hasPreview' => $this->previewManager->isAvailable($file)
 		];
+	}
+
+	public function hasTemplateDirectory(): bool {
+		try {
+			$this->getTemplateFolder();
+			return true;
+		} catch (\Exception $e) {}
+		return false;
+	}
+
+	public function setTemplatePath(string $path): void {
+		$this->config->setUserValue($this->userId, 'core', 'templateDirectory', $path);
+	}
+
+	public function getTemplatePath(): string {
+		return $this->config->getUserValue($this->userId, 'core', 'templateDirectory', $this->l10n->t('Templates') . '/');
+	}
+
+	public function initializeTemplateDirectory(string $path = null, string $userId = null): void {
+		if ($userId !== null) {
+			$this->userId = $userId;
+		}
+		$userFolder = $this->rootFolder->getUserFolder($this->userId);
+		$templateDirectoryPath = $path ?? $this->l10n->t('Templates') . '/';
+		try {
+			$userFolder->get($templateDirectoryPath);
+		} catch (NotFoundException $e) {
+			$folder = $userFolder->newFolder($templateDirectoryPath);
+			$folder->newFile('Testtemplate.txt');
+		}
+		$this->setTemplatePath($templateDirectoryPath);
 	}
 }

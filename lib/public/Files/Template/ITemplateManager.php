@@ -34,18 +34,45 @@ use OCP\Files\GenericFileException;
 interface ITemplateManager {
 
 	/**
-	 * @param string $appId
-	 * @param array $mimetypes
-	 * @param string $actionName
+	 * Register a template type support
+	 *
+	 * @param TemplateType $templateType
 	 * @since 21.0.0
 	 */
-	public function registerTemplateSupport(string $appId, array $mimetypes, string $actionName, string $fileExtension): void;
+	public function registerTemplateType(TemplateType $templateType): void;
 
 	/**
+	 * Get a list of available templates grouped by their type
+	 *
 	 * @return array
 	 * @since 21.0.0
 	 */
 	public function listMimetypes(): array;
+
+	/**
+	 * @return bool
+	 * @since 21.0.0
+	 */
+	public function hasTemplateDirectory(): bool;
+
+	/**
+	 * @param string $path
+	 * @return void
+	 * @since 21.0.0
+	 */
+	public function setTemplatePath(string $path): void;
+
+	/**
+	 * @return string
+	 * @since 21.0.0
+	 */
+	public function getTemplatePath(): string;
+
+	/**
+	 * @param string $path
+	 * @since 21.0.0
+	 */
+	public function initializeTemplateDirectory(string $path): void;
 
 	/**
 	 * @param string $filePath

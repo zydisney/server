@@ -144,6 +144,11 @@ $application->registerRoutes(
 				'verb' => 'POST'
 			],
 			[
+				'name' => 'Template#path',
+				'url' => '/api/v1/templates/path',
+				'verb' => 'POST'
+			],
+			[
 				'name' => 'TransferOwnership#transfer',
 				'url' => '/api/v1/transferownership',
 				'verb' => 'POST',

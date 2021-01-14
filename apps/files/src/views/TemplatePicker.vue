@@ -170,6 +170,9 @@ export default {
 					fileActions: fileList?.fileActions,
 				})
 
+				// Reload files list
+				fileList?.reload?.() || window.location.reload()
+
 				this.close()
 			} catch (error) {
 				this.logger.error('Error while creating the new file from template', error)

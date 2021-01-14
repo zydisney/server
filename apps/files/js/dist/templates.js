@@ -12098,7 +12098,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       return _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
         var _OCA, _OCA$Files, _OCA$Files$App;
 
-        var currentDirectory, fileList, _this2$selectedTempla, response, fileInfo, fileAction;
+        var currentDirectory, fileList, _this2$selectedTempla, _fileList$reload, response, fileInfo, fileAction;
 
         return regeneratorRuntime.wrap(function _callee$(_context) {
           while (1) {
@@ -12127,32 +12127,34 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   dir: currentDirectory,
                   fileList: fileList,
                   fileActions: fileList === null || fileList === void 0 ? void 0 : fileList.fileActions
-                });
+                }); // Reload files list
+
+                (fileList === null || fileList === void 0 ? void 0 : (_fileList$reload = fileList.reload) === null || _fileList$reload === void 0 ? void 0 : _fileList$reload.call(fileList)) || window.location.reload();
 
                 _this2.close();
 
-                _context.next = 18;
+                _context.next = 19;
                 break;
 
-              case 14:
-                _context.prev = 14;
+              case 15:
+                _context.prev = 15;
                 _context.t0 = _context["catch"](3);
 
                 _this2.logger.error('Error while creating the new file from template', _context.t0);
 
                 Object(_nextcloud_dialogs__WEBPACK_IMPORTED_MODULE_1__["showError"])(_this2.t('files', 'Unable to create new file from template'));
 
-              case 18:
-                _context.prev = 18;
+              case 19:
+                _context.prev = 19;
                 _this2.loading = false;
-                return _context.finish(18);
+                return _context.finish(19);
 
-              case 21:
+              case 22:
               case "end":
                 return _context.stop();
             }
           }
-        }, _callee, null, [[3, 14, 18, 21]]);
+        }, _callee, null, [[3, 15, 19, 22]]);
       }))();
     },
 

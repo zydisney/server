@@ -30,6 +30,7 @@ use OCP\DirectEditing\IEditor;
 use OCP\DirectEditing\IManager;
 use OCP\DirectEditing\RegisterDirectEditorEvent;
 use OCP\EventDispatcher\IEventDispatcher;
+use OCP\Files\Template\ITemplateManager;
 
 class DirectEditingService {
 
@@ -38,9 +39,10 @@ class DirectEditingService {
 	/** @var IEventDispatcher */
 	private $eventDispatcher;
 
-	public function __construct(IEventDispatcher $eventDispatcher, IManager $directEditingManager) {
+	public function __construct(IEventDispatcher $eventDispatcher, IManager $directEditingManager, ITemplateManager $templateManager) {
 		$this->directEditingManager = $directEditingManager;
 		$this->eventDispatcher = $eventDispatcher;
+		$this->templateManager = $templateManager;
 	}
 
 	public function getDirectEditingETag(): string {
@@ -59,6 +61,7 @@ class DirectEditingService {
 			return $capabilities;
 		}
 
+		$templateMimetypes = $this->templateManager->listMimetypes();
 		/**
 		 * @var string $id
 		 * @var IEditor $editor
@@ -74,12 +77,15 @@ class DirectEditingService {
 			/** @var ACreateEmpty|ACreateFromTemplate $creator */
 			foreach ($editor->getCreators() as $creator) {
 				$id = $creator->getId();
+				$hasTemplateSupport = array_filter($templateMimetypes, function ($templateHandler) use ($creator) {
+					return in_array($creator->getMimetype(), $templateHandler['mimetypes']);
+				});
 				$capabilities['creators'][$id] = [
 					'id' => $id,
 					'editor' => $editor->getId(),
 					'name' => $creator->getName(),
 					'extension' => $creator->getExtension(),
-					'templates' => $creator instanceof ACreateFromTemplate,
+					'templates' => count($hasTemplateSupport) > 0,
 					'mimetype' => $creator->getMimetype()
 				];
 			}

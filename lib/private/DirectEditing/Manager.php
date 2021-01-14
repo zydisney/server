@@ -40,6 +40,7 @@ use OCP\Files\File;
 use OCP\Files\IRootFolder;
 use OCP\Files\Node;
 use OCP\Files\NotFoundException;
+use OCP\Files\Template\ITemplateManager;
 use OCP\IDBConnection;
 use OCP\IL10N;
 use OCP\IUserSession;
@@ -113,6 +114,26 @@ class Manager implements IManager {
 					$templates = $creator->getTemplates();
 				}
 
+				// Add user templates to the direct editing results
+				$templateMimetypes = \OC::$server->get(ITemplateManager::class)->listMimetypes();
+				$supportedTemplates = array_filter($templateMimetypes, function ($templateHandler) use ($creator) {
+					return in_array($creator->getMimetype(), $templateHandler['mimetypes']);
+				});
+				$templateMatch = array_shift($supportedTemplates);
+				foreach ($templateMatch['templates'] as $template) {
+					$templates[] = [
+						"id" => 'core:' . $template['filename'],
+						"title" => $template['basename'],
+						"preview" => \OC::$server->getURLGenerator()->linkToRouteAbsolute('core.Preview.getPreview', [
+							'file' => $template['filename'],
+							'x' => 512,
+							'y' => 512,
+						]),
+						"extension" => $templateMatch['extension'],
+						"mimetype" => $creator->getMimetype()
+					];
+				}
+
 				$templates = array_map(function ($template) use ($creator) {
 					$template['extension'] = $creator->getExtension();
 					$template['mimetype'] = $creator->getMimetype();
@@ -130,8 +151,15 @@ class Manager implements IManager {
 		if ($userFolder->nodeExists($path)) {
 			throw new \RuntimeException('File already exists');
 		} else {
-			$file = $userFolder->newFile($path);
 			$editor = $this->getEditor($editorId);
+			if (strpos($templateId, 'core:') === 0) {
+				/** @var ITemplateManager $templateManager */
+				$templateManager = \OC::$server->get(ITemplateManager::class);
+				$templateManager->createFromTemplate($path, substr($templateId, 5));
+				$file = $userFolder->get($path);
+				return $this->createToken($editorId, $file, $path);
+			}
+			$file = $userFolder->newFile($path);
 			$creators = $editor->getCreators();
 			foreach ($creators as $creator) {
 				if ($creator->getId() === $creatorId) {

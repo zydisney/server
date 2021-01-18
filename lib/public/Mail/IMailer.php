@@ -104,4 +104,10 @@ interface IMailer {
 	 * @since 8.1.0
 	 */
 	public function validateMailAddress(string $email): bool;
+
+	/**
+	 * @return string
+	 * @since 21.0.0
+	 */
+	public function getDefaultEmailAddress(): string;
 }

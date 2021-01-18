@@ -322,4 +322,21 @@ class Mailer implements IMailer {
 
 		return new \Swift_SendmailTransport($binaryPath . $binaryParam);
 	}
+
+	public function getDefaultEmailAddress(): string {
+		$userPart = $this->config->getSystemValue('mail_from_address', 'no-reply');
+		$hostName = \OCP\Util::getServerHostName();
+		$hostName = $this->config->getSystemValue('mail_domain', $hostName);
+		$defaultEmailAddress = $userPart . '@' . $hostName;
+
+		if ($this->validateMailAddress($defaultEmailAddress)) {
+			return $defaultEmailAddress;
+		}
+
+		// in case we cannot build a valid email address from the hostname let's fallback to 'localhost.localdomain'
+		if ($this->validateMailAddress($userPart . '@localhost.localdomain')) {
+			return $userPart . '@localhost.localdomain';
+		}
+		return 'no-reply@localhost.localdomain';
+	}
 }

@@ -53,6 +53,8 @@
 
 namespace OCP;
 
+use OCP\Mail\IMailer;
+
 /**
  * This class provides different helper functions to make the life of a developer easier
  *
@@ -272,7 +274,8 @@ class Util {
 
 	/**
 	 * Returns the default email address
-	 * @param string $user_part the user part of the address
+	 *
+	 * @param string $userPart the user part of the address
 	 * @return string the default email address
 	 *
 	 * Assembles a default email address (using the server hostname
@@ -285,21 +288,10 @@ class Util {
 	 * config.php, this value will override the $user_part that
 	 * is passed to this function
 	 * @since 5.0.0
+	 * @deprecated 21.0.0 use \OCP\Mail\IMailer::getDefaultEmailAddress
 	 */
-	public static function getDefaultEmailAddress($user_part) {
-		$config = \OC::$server->getConfig();
-		$user_part = $config->getSystemValue('mail_from_address', $user_part);
-		$host_name = self::getServerHostName();
-		$host_name = $config->getSystemValue('mail_domain', $host_name);
-		$defaultEmailAddress = $user_part.'@'.$host_name;
-
-		$mailer = \OC::$server->getMailer();
-		if ($mailer->validateMailAddress($defaultEmailAddress)) {
-			return $defaultEmailAddress;
-		}
-
-		// in case we cannot build a valid email address from the hostname let's fallback to 'localhost.localdomain'
-		return $user_part.'@localhost.localdomain';
+	public static function getDefaultEmailAddress($userPart) {
+		return \OC::$server->get(IMailer::class)->getDefaultEmailAddress($userPart);
 	}
 
 	/**

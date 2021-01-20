@@ -165,8 +165,12 @@ class RemoveLinkShares implements IRepairStep {
 	private function processShare(array $data) {
 		$id = $data['id'];
 
-		$this->addToNotify($data['uid_owner']);
-		$this->addToNotify($data['uid_initiator']);
+		if (is_string($data['uid_owner'])) {
+			$this->addToNotify($data['uid_owner']);
+		}
+		if (is_string($data['uid_initiator'])) {
+			$this->addToNotify($data['uid_initiator']);
+		}
 
 		$this->deleteShare((int)$id);
 	}

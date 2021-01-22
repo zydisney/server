@@ -261,6 +261,7 @@ class Local extends \OC\Files\Storage\Common {
 		} else {
 			$result = @touch($this->getSourcePath($path));
 		}
+		chmod($this->getSourcePath($path), 0644);
 		if ($result) {
 			clearstatcache(true, $this->getSourcePath($path));
 		}
@@ -273,7 +274,9 @@ class Local extends \OC\Files\Storage\Common {
 	}
 
 	public function file_put_contents($path, $data) {
-		return file_put_contents($this->getSourcePath($path), $data);
+		$result = file_put_contents($this->getSourcePath($path), $data);
+		chmod($this->getSourcePath($path), 0644);
+		return $result;
 	}
 
 	public function unlink($path) {
@@ -352,7 +355,11 @@ class Local extends \OC\Files\Storage\Common {
 	}
 
 	public function fopen($path, $mode) {
-		return fopen($this->getSourcePath($path), $mode);
+		$result = fopen($this->getSourcePath($path), $mode);
+		if ($mode !== 'r') {
+			chmod($this->getSourcePath($path), 0644);
+		}
+		return $result;
 	}
 
 	public function hash($type, $path, $raw = false) {

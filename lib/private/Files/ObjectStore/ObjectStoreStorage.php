@@ -446,6 +446,7 @@ class ObjectStoreStorage extends \OC\Files\Storage\Common {
 	}
 
 	public function writeStream(string $path, $stream, int $size = null): int {
+		\OC::$server->getLogger()->debug("Triggering object store write to " . $path, ['app' => 'objectstore']);
 		$stat = $this->stat($path);
 		if (empty($stat)) {
 			// create new file
@@ -563,6 +564,7 @@ class ObjectStoreStorage extends \OC\Files\Storage\Common {
 	}
 
 	private function copyFile(ICacheEntry $sourceEntry, string $to) {
+		\OC::$server->getLogger()->debug("Triggering object store copy from " . $sourceEntry->getPath() . " to " . $to, ['app' => 'objectstore']);
 		$cache = $this->getCache();
 
 		$sourceUrn = $this->getURN($sourceEntry->getId());

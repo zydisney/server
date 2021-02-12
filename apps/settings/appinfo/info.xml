@@ -13,6 +13,16 @@
 
 	<category>customization</category>
 	<bugs>https://github.com/nextcloud/server/issues</bugs>
+	<navigations>
+		<navigation>
+			<id>profile-menuitem</id>
+			<name>User profile</name>
+			<route />
+			<order>0</order>
+			<icon>info.svg</icon>
+			<type>settings</type>
+		</navigation>
+	</navigations>
 	<dependencies>
 		<nextcloud min-version="22" max-version="22"/>
 	</dependencies>

@@ -25,6 +25,8 @@
 /** @var \OCP\IL10N $l */
 /** @var array $_ */
 
+use OC\InitialStateService;
+
 script('settings', [
 	'usersettings',
 	'templates',
@@ -32,6 +34,27 @@ script('settings', [
 	'federationscopemenu',
 	'settings/personalInfo',
 ]);
+script('core', ['dist/profile']);
+
+$isLoggedIn = true;
+$user = \OC::$server->getUserSession()->getUser();
+$account = \OC::$server->get(\OCP\Accounts\IAccountManager::class)->getAccount($user);
+/** @var InitialStateService */
+$initialState = \OC::$server->get(InitialStateService::class);
+$initialState->provideInitialState('core', 'userId', $user->getUID());
+$initialState->provideInitialState('core', 'account', $account->jsonSerialize());
+
+$status = \OC::$server->get(\OCP\UserStatus\IManager::class);
+$status = $status->getUserStatuses([$userId]);
+$status = array_pop($status);
+if ($status) {
+	$initialState->provideInitialState('core', 'status', [
+			'icon' => $status->getIcon(),
+			'message' => $status->getMessage(),
+			'status' => $status->getStatus(),
+	]);
+}
+
 ?>
 
 <div id="personal-settings" data-lookup-server-upload-enabled="<?php p($_['lookupServerUploadEnabled'] ? 'true' : 'false') ?>">

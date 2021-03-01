@@ -51,7 +51,7 @@ class TrustedServers {
 	/** remote server revoked access */
 	public const STATUS_ACCESS_REVOKED = 4;
 
-	/** @var  dbHandler */
+	/** @var DbHandler */
 	private $dbHandler;
 
 	/** @var  IClientService */

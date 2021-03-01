@@ -54,6 +54,7 @@ use OC\Files\View;
 use OCA\Files_Trashbin\AppInfo\Application;
 use OCA\Files_Trashbin\Command\Expire;
 use OCP\AppFramework\Utility\ITimeFactory;
+use OCP\Files\Cache\ICacheEntry;
 use OCP\Files\File;
 use OCP\Files\Folder;
 use OCP\Files\NotFoundException;
@@ -344,6 +345,24 @@ class Trashbin {
 				$trashStorage->getUpdater()->remove($trashInternalPath);
 			}
 			return false;
+		}
+
+		$cache = $trashStorage->getCache();
+		$trashCacheItem = $cache->get($trashInternalPath);
+		$logger = \OC::$server->getLogger();
+		if ($trashCacheItem instanceof ICacheEntry) {
+			$parentCacheItem = $cache->get($trashCacheItem['parent']);
+			if ($parentCacheItem instanceof ICacheEntry) {
+				$parentPath = $parentCacheItem->getPath();
+				$expectedPath = $parentPath . '/' . $trashCacheItem->getName();
+				if ($expectedPath !== $trashCacheItem->getPath()) {
+					$logger->error("Trash item ($trashInternalPath) has a parent item with the wrong path ($parentPath) after moving to trash");
+				}
+			} else {
+				$logger->error("Trash item ($trashInternalPath) has no parent in cache after moving to trash");
+			}
+		} else {
+			$logger->error("Trash item ($trashInternalPath) not found in cache after moving to trash");
 		}
 
 		if ($moveSuccessful) {

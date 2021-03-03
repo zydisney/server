@@ -111,8 +111,8 @@ class MySQL extends AbstractDatabase {
 	 */
 	private function createDBUser($connection) {
 		try {
-			$name = $this->dbUser;
-			$password = $this->dbPassword;
+			$name = mysqli_real_escape_string($this->dbUser);
+			$password = mysqli_real_escape_string($this->dbPassword);
 			// we need to create 2 accounts, one for global use and one for local user. if we don't specify the local one,
 			// the anonymous user would take precedence when there is one.
 

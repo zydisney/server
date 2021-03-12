@@ -64,10 +64,19 @@ class NativeFileInfo implements IFileInfo {
 			$rawAttributes = explode(',', $this->share->getAttribute($this->path, 'system.dos_attr.*'));
 			$this->attributeCache = [];
 			foreach ($rawAttributes as $rawAttribute) {
-				list($name, $value) = explode(':', $rawAttribute);
+				[$name, $value] = explode(':', $rawAttribute);
 				$name = strtolower($name);
 				if ($name == 'mode') {
-					$this->attributeCache[$name] = (int)hexdec(substr($value, 2));
+					$mode = (int)hexdec(substr($value, 2));
+					if ($mode > 0x1000) {
+						$readonly = !(bool)($mode & 0x80); // 0x80: owner write permissions
+					} else {
+						$readonly = (bool)($mode & IFileInfo::MODE_READONLY);
+					}
+					if ($readonly) {
+						\OC::$server->getLogger()->warning("Readonly file mode $value for ". $this->path);
+					}
+					$this->attributeCache[$name] = $mode;
 				} else {
 					$this->attributeCache[$name] = (int)$value;
 				}
@@ -112,7 +121,7 @@ class NativeFileInfo implements IFileInfo {
 
 		// Let us ignore the ATTR_NOT_CONTENT_INDEXED for now
 		$mode &= ~0x00002000;
-		
+
 		return $mode;
 	}
 

@@ -145,7 +145,15 @@ class NativeFileInfo implements IFileInfo {
 		if ($mode > 0x1000) {
 			return !(bool)($mode & 0x80); // 0x80: owner write permissions
 		} else {
-			return (bool)($mode & IFileInfo::MODE_READONLY);
+			$readonly = (bool)($mode & IFileInfo::MODE_READONLY);
+			if ($readonly && $this->path = "") {
+				// there seems to be a difference behavior between the various ways of getting the mode when querying the root, double check readonly status
+				$stat = $this->share->getStat($this->path);
+				\OC::$server->getLogger()->warning("Readonly root detected, stat for root is: ". json_encode($stat));
+				return (bool)($stat['mode'] && IFileInfo::MODE_READONLY);
+			} else {
+				return $readonly;
+			}
 		}
 	}
 

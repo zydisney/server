@@ -75,6 +75,8 @@ class NativeFileInfo implements IFileInfo {
 					}
 					if ($readonly) {
 						\OC::$server->getLogger()->warning("Readonly file mode $value for ". $this->path);
+						$stat = $this->share->getStat($this->path);
+						\OC::$server->getLogger()->warning("Stat for readonly file is is: ". json_encode($stat));
 					}
 					$this->attributeCache[$name] = $mode;
 				} else {

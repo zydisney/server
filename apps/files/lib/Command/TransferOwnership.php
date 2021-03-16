@@ -134,8 +134,9 @@ class TransferOwnership extends Command {
 		$sourcePathOption = ltrim($input->getOption('path'), '/');
 		$this->sourcePath = rtrim($this->sourceUser . '/files/' . $sourcePathOption, '/');
 
-		// target user has to be ready
-		if ($destinationUserObject->getLastLogin() === 0 || !\OC::$server->getEncryptionManager()->isReadyForUser($this->destinationUser)) {
+		$encryptionManager = \OC::$server->getEncryptionManager();
+		// If encryption is on we have to ensure the user has logged in before and that all encryption modules are ready
+		if (($encryptionManager->isEnabled() && $destinationUserObject->getLastLogin() === 0) || !$encryptionManager->isReadyForUser($this->destinationUser)) {
 			$output->writeln("<error>The target user is not ready to accept files. The user has at least to be logged in once.</error>");
 			return 2;
 		}
@@ -149,6 +150,8 @@ class TransferOwnership extends Command {
 		}
 
 		// setup filesystem
+		// Requesting the user folder will set it up if the user hasn't logged in before
+		\OC::$server->getUserFolder($this->destinationUser);
 		Filesystem::initMountPoints($this->sourceUser);
 		Filesystem::initMountPoints($this->destinationUser);
 

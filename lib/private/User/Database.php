@@ -139,7 +139,7 @@ class Database extends ABackend implements
 			$qb = $this->dbConn->getQueryBuilder();
 			$qb->insert($this->table)
 				->values([
-					'uid' => $qb->createNamedParameter($uid),
+					'uid' => $qb->createNamedParameter(mb_strtolower($uid)),
 					'password' => $qb->createNamedParameter(\OC::$server->getHasher()->hash($password)),
 					'uid_lower' => $qb->createNamedParameter(mb_strtolower($uid)),
 				]);

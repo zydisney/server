@@ -101,6 +101,8 @@ class FilesSearchProvider implements IProvider {
 	 * @inheritDoc
 	 */
 	public function search(IUser $user, ISearchQuery $query): SearchResult {
+		return SearchResult::complete($this->l10n->t('Files'), []);
+
 		$userFolder = $this->rootFolder->getUserFolder($user->getUID());
 		$fileQuery = new SearchQuery(
 			new SearchComparison(ISearchComparison::COMPARE_LIKE, 'name', '%' . $query->getTerm() . '%'),

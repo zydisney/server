@@ -106,13 +106,13 @@ class UserMountCache implements IUserMountCache {
 		}, $mounts);
 		$newMounts = array_values(array_filter($newMounts));
 		$newMountRootIds = array_map(function (ICachedMountInfo $mount) {
-			return $mount->getRootId();
+			return $mount->getRootId() . '-' . $mount->getMountId();
 		}, $newMounts);
 		$newMounts = array_combine($newMountRootIds, $newMounts);
 
 		$cachedMounts = $this->getMountsForUser($user);
 		$cachedMountRootIds = array_map(function (ICachedMountInfo $mount) {
-			return $mount->getRootId();
+			return $mount->getRootId() . '-' . $mount->getMountId();
 		}, $cachedMounts);
 		$cachedMounts = array_combine($cachedMountRootIds, $cachedMounts);
 
@@ -182,7 +182,7 @@ class UserMountCache implements IUserMountCache {
 				'user_id' => $mount->getUser()->getUID(),
 				'mount_point' => $mount->getMountPoint(),
 				'mount_id' => $mount->getMountId()
-			], ['root_id', 'user_id']);
+			], ['root_id', 'user_id', 'mount_point']);
 		} else {
 			// in some cases this is legitimate, like orphaned shares
 			$this->logger->debug('Could not get storage info for mount at ' . $mount->getMountPoint());
@@ -195,9 +195,9 @@ class UserMountCache implements IUserMountCache {
 		$query = $builder->update('mounts')
 			->set('storage_id', $builder->createNamedParameter($mount->getStorageId()))
 			->set('mount_point', $builder->createNamedParameter($mount->getMountPoint()))
-			->set('mount_id', $builder->createNamedParameter($mount->getMountId(), IQueryBuilder::PARAM_INT))
 			->where($builder->expr()->eq('user_id', $builder->createNamedParameter($mount->getUser()->getUID())))
-			->andWhere($builder->expr()->eq('root_id', $builder->createNamedParameter($mount->getRootId(), IQueryBuilder::PARAM_INT)));
+			->andWhere($builder->expr()->eq('root_id', $builder->createNamedParameter($mount->getRootId(), IQueryBuilder::PARAM_INT)))
+			->andWhere($builder->expr()->eq('mount_id', $builder->createNamedParameter($mount->getMountId(), IQueryBuilder::PARAM_INT)));
 
 		$query->execute();
 	}

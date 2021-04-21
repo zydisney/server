@@ -33,6 +33,7 @@ namespace OCP;
  * An Exception class with the intention to be presented to the end user
  *
  * @package OCP
+ * @since 22.0.0
  */
 class HintException extends \Exception {
 	private $hint;
@@ -48,6 +49,7 @@ class HintException extends \Exception {
 	 *                         contain sensitive data.
 	 * @param int $code
 	 * @param \Exception|null $previous
+	 * @since 22.0.0
 	 */
 	public function __construct($message, $hint = '', $code = 0, \Exception $previous = null) {
 		$this->hint = $hint;
@@ -59,6 +61,7 @@ class HintException extends \Exception {
 	 * code, the message and the hint.
 	 *
 	 * @return string
+	 * @since 22.0.0
 	 */
 	public function __toString() {
 		return __CLASS__ . ": [{$this->code}]: {$this->message} ({$this->hint})\n";
@@ -70,6 +73,7 @@ class HintException extends \Exception {
 	 * instead.
 	 *
 	 * @return string
+	 * @since 22.0.0
 	 */
 	public function getHint() {
 		if (empty($this->hint)) {

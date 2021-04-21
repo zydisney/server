@@ -1181,6 +1181,7 @@ class ComposerStaticInit53792487c5a8370acc0b06b1a864ff4c
         'OC\\Group\\Group' => __DIR__ . '/../../..' . '/lib/private/Group/Group.php',
         'OC\\Group\\Manager' => __DIR__ . '/../../..' . '/lib/private/Group/Manager.php',
         'OC\\Group\\MetaData' => __DIR__ . '/../../..' . '/lib/private/Group/MetaData.php',
+        'OC\\HintException' => __DIR__ . '/../../..' . '/lib/private/HintException.php',
         'OC\\Hooks\\BasicEmitter' => __DIR__ . '/../../..' . '/lib/private/Hooks/BasicEmitter.php',
         'OC\\Hooks\\Emitter' => __DIR__ . '/../../..' . '/lib/private/Hooks/Emitter.php',
         'OC\\Hooks\\EmitterTrait' => __DIR__ . '/../../..' . '/lib/private/Hooks/EmitterTrait.php',

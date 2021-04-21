@@ -24,7 +24,7 @@
 
 namespace OCA\User_LDAP\Controller;
 
-use OC\HintException;
+use OCP\HintException;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\RedirectResponse;
 use OCP\AppFramework\Http\TemplateResponse;

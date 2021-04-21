@@ -41,7 +41,7 @@ namespace OC\Share20;
 
 use OC\Cache\CappedMemoryCache;
 use OC\Files\Mount\MoveableMount;
-use OC\HintException;
+use OCP\HintException;
 use OC\Share20\Exception\ProviderException;
 use OCA\Files_Sharing\ISharedStorage;
 use OCP\EventDispatcher\IEventDispatcher;
@@ -999,7 +999,7 @@ class Manager implements IManager {
 			if (empty($plainTextPassword) && $share->getSendPasswordByTalk()) {
 				throw new \InvalidArgumentException('Can’t enable sending the password by Talk with an empty password');
 			}
-	
+
 			/**
 			 * If we're in a mail share, we need to force a password change
 			 * as either the user is not aware of the password or is already (received by mail)

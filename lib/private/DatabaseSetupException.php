@@ -23,5 +23,7 @@
 
 namespace OC;
 
+use OCP\HintException;
+
 class DatabaseSetupException extends HintException {
 }

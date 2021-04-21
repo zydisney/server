@@ -34,7 +34,7 @@
 
 namespace OC\User;
 
-use OC\HintException;
+use OCP\HintException;
 use OC\Hooks\PublicEmitter;
 use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\EventDispatcher\IEventDispatcher;

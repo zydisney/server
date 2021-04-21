@@ -25,14 +25,14 @@
  *
  */
 
-namespace OC;
+namespace OCP;
 
 /**
  * Class HintException
  *
  * An Exception class with the intention to be presented to the end user
  *
- * @package OC
+ * @package OCP
  */
 class HintException extends \Exception {
 	private $hint;

@@ -27,7 +27,7 @@
 
 namespace OCP\Encryption\Exceptions;
 
-use OC\HintException;
+use OCP\HintException;
 
 /**
  * Class GenericEncryptionException

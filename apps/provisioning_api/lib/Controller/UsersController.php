@@ -48,7 +48,7 @@ use libphonenumber\PhoneNumberFormat;
 use libphonenumber\PhoneNumberUtil;
 use OC\Accounts\AccountManager;
 use OC\Authentication\Token\RemoteWipe;
-use OC\HintException;
+use OCP\HintException;
 use OC\KnownUser\KnownUserService;
 use OCA\Settings\Mailer\NewUserMailHelper;
 use OCP\Accounts\IAccountManager;

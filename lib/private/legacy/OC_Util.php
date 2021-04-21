@@ -1232,7 +1232,7 @@ class OC_Util {
 
 		$fp = @fopen($testFile, 'w');
 		if (!$fp) {
-			throw new OC\HintException('Can\'t create test file to check for working .htaccess file.',
+			throw new OCP\HintException('Can\'t create test file to check for working .htaccess file.',
 				'Make sure it is possible for the webserver to write to ' . $testFile);
 		}
 		fwrite($fp, $testContent);
@@ -1243,10 +1243,11 @@ class OC_Util {
 
 	/**
 	 * Check if the .htaccess file is working
+	 *
 	 * @param \OCP\IConfig $config
 	 * @return bool
 	 * @throws Exception
-	 * @throws \OC\HintException If the test file can't get written.
+	 * @throws \OCP\HintException If the test file can't get written.
 	 */
 	public function isHtaccessWorking(\OCP\IConfig $config) {
 		if (\OC::$CLI || !$config->getSystemValue('check_for_working_htaccess', true)) {
@@ -1440,7 +1441,7 @@ class OC_Util {
 	 *
 	 * @param \OC\SystemConfig $config
 	 * @return bool whether the core or any app needs an upgrade
-	 * @throws \OC\HintException When the upgrade from the given version is not allowed
+	 * @throws \OCP\HintException When the upgrade from the given version is not allowed
 	 */
 	public static function needUpgrade(\OC\SystemConfig $config) {
 		if ($config->getValue('installed', false)) {
@@ -1460,11 +1461,11 @@ class OC_Util {
 					return true;
 				} else {
 					// downgrade attempt, throw exception
-					throw new \OC\HintException('Downgrading is not supported and is likely to cause unpredictable issues (from ' . $installedVersion . ' to ' . $currentVersion . ')');
+					throw new OCP\HintException('Downgrading is not supported and is likely to cause unpredictable issues (from ' . $installedVersion . ' to ' . $currentVersion . ')');
 				}
 			} elseif ($versionDiff < 0) {
 				// downgrade attempt, throw exception
-				throw new \OC\HintException('Downgrading is not supported and is likely to cause unpredictable issues (from ' . $installedVersion . ' to ' . $currentVersion . ')');
+				throw new OCP\HintException('Downgrading is not supported and is likely to cause unpredictable issues (from ' . $installedVersion . ' to ' . $currentVersion . ')');
 			}
 
 			// also check for upgrades for apps (independently from the user)

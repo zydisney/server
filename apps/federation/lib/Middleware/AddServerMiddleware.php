@@ -29,7 +29,7 @@
 
 namespace OCA\Federation\Middleware;
 
-use OC\HintException;
+use OCP\HintException;
 use OCA\Federation\Controller\SettingsController;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;

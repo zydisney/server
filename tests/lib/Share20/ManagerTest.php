@@ -22,7 +22,7 @@
 namespace Test\Share20;
 
 use OC\Files\Mount\MoveableMount;
-use OC\HintException;
+use OCP\HintException;
 use OC\Share20\DefaultShareProvider;
 use OC\Share20\Exception;
 use OC\Share20\Manager;

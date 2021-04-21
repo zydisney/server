@@ -170,7 +170,7 @@ class CloudFederationProviderFiles implements ICloudFederationProvider {
 	 *
 	 * @throws ProviderCouldNotAddShareException
 	 * @throws \OCP\AppFramework\QueryException
-	 * @throws \OC\HintException
+	 * @throws \OCP\HintException
 	 * @since 14.0.0
 	 */
 	public function shareReceived(ICloudFederationShare $share) {
@@ -299,7 +299,7 @@ class CloudFederationProviderFiles implements ICloudFederationProvider {
 	 * @throws ActionNotSupportedException
 	 * @throws AuthenticationFailedException
 	 * @throws BadRequestException
-	 * @throws \OC\HintException
+	 * @throws \OCP\HintException
 	 * @since 14.0.0
 	 */
 	public function notificationReceived($notificationType, $providerId, array $notification) {
@@ -367,7 +367,7 @@ class CloudFederationProviderFiles implements ICloudFederationProvider {
 	 * @throws ActionNotSupportedException
 	 * @throws AuthenticationFailedException
 	 * @throws BadRequestException
-	 * @throws \OC\HintException
+	 * @throws \OCP\HintException
 	 */
 	private function shareAccepted($id, array $notification) {
 		if (!$this->isS2SEnabled()) {
@@ -436,7 +436,7 @@ class CloudFederationProviderFiles implements ICloudFederationProvider {
 	 * @throws AuthenticationFailedException
 	 * @throws BadRequestException
 	 * @throws ShareNotFound
-	 * @throws \OC\HintException
+	 * @throws \OCP\HintException
 	 *
 	 */
 	protected function shareDeclined($id, array $notification) {

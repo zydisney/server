@@ -40,7 +40,7 @@ use function array_filter;
 use function count;
 use OC\Authentication\TwoFactorAuth\Manager;
 use OC\Core\Exception\ResetPasswordException;
-use OC\HintException;
+use OCP\HintException;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\Http\TemplateResponse;

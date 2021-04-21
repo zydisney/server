@@ -48,7 +48,7 @@
 namespace OCA\User_LDAP;
 
 use DomainException;
-use OC\HintException;
+use OCP\HintException;
 use OC\Hooks\PublicEmitter;
 use OC\ServerNotAvailableException;
 use OCA\User_LDAP\Exceptions\ConstraintViolationException;

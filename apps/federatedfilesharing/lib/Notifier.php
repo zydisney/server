@@ -27,7 +27,7 @@
 
 namespace OCA\FederatedFileSharing;
 
-use OC\HintException;
+use OCP\HintException;
 use OCP\Contacts\IManager;
 use OCP\Federation\ICloudId;
 use OCP\Federation\ICloudIdManager;

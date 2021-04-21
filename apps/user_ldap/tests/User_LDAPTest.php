@@ -32,7 +32,7 @@
 
 namespace OCA\User_LDAP\Tests;
 
-use OC\HintException;
+use OCP\HintException;
 use OC\User\Backend;
 use OC\User\Session;
 use OCA\User_LDAP\Access;
@@ -1215,7 +1215,7 @@ class User_LDAPTest extends TestCase {
 
 
 	public function testSetPasswordInvalid() {
-		$this->expectException(\OC\HintException::class);
+		$this->expectException(\OCP\HintException::class);
 		$this->expectExceptionMessage('Password fails quality checking policy');
 
 		$this->prepareAccessForSetPassword($this->access);
@@ -1360,7 +1360,7 @@ class User_LDAPTest extends TestCase {
 
 
 	public function testSetDisplayNameErrorWithPlugin() {
-		$this->expectException(\OC\HintException::class);
+		$this->expectException(\OCP\HintException::class);
 
 		$newDisplayName = 'J. Baker';
 		$this->pluginManager->expects($this->once())

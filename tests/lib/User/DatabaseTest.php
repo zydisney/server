@@ -22,7 +22,7 @@
 
 namespace Test\User;
 
-use OC\HintException;
+use OCP\HintException;
 use OC\User\User;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventDispatcher;
@@ -82,9 +82,9 @@ class DatabaseTest extends Backend {
 		$this->assertSame($user, $this->backend->checkPassword($user, 'newpass'));
 	}
 
-	
+
 	public function testVerifyPasswordEventFail() {
-		$this->expectException(\OC\HintException::class);
+		$this->expectException(\OCP\HintException::class);
 		$this->expectExceptionMessage('password change failed');
 
 		$user = $this->getUser();

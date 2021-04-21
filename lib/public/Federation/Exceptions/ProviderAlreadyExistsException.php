@@ -25,7 +25,7 @@
 
 namespace OCP\Federation\Exceptions;
 
-use OC\HintException;
+use OCP\HintException;
 
 /**
  * Class ProviderAlreadyExistsException

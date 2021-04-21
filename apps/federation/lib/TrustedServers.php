@@ -28,7 +28,7 @@
 
 namespace OCA\Federation;
 
-use OC\HintException;
+use OCP\HintException;
 use OCA\Federation\BackgroundJob\RequestSharedSecret;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Utility\ITimeFactory;

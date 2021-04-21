@@ -95,7 +95,7 @@ class Factory implements ICacheFactory {
 				]);
 				$localCacheClass = self::NULL_CACHE;
 			} else {
-				throw new \OC\HintException(strtr($missingCacheMessage, [
+				throw new \OCP\HintException(strtr($missingCacheMessage, [
 					'{class}' => $localCacheClass, '{use}' => 'local'
 				]), $missingCacheHint);
 			}
@@ -110,7 +110,7 @@ class Factory implements ICacheFactory {
 				]);
 				$distributedCacheClass = self::NULL_CACHE;
 			} else {
-				throw new \OC\HintException(strtr($missingCacheMessage, [
+				throw new \OCP\HintException(strtr($missingCacheMessage, [
 					'{class}' => $distributedCacheClass, '{use}' => 'distributed'
 				]), $missingCacheHint);
 			}

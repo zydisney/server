@@ -22,7 +22,7 @@
 
 namespace Tests\Core\Controller;
 
-use OC\HintException;
+use OCP\HintException;
 use OC\User\Session;
 use OCA\Settings\Controller\ChangePasswordController;
 use OCP\App\IAppManager;

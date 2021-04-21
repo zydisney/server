@@ -30,7 +30,7 @@
 namespace OC\Log;
 
 use OC\Core\Controller\SetupController;
-use OC\HintException;
+use OCP\HintException;
 use OC\Security\IdentityProof\Key;
 use OC\Setup;
 use OC\SystemConfig;

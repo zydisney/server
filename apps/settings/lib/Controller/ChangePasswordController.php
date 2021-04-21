@@ -37,7 +37,7 @@
 namespace OCA\Settings\Controller;
 
 use OC\Group\Manager as GroupManager;
-use OC\HintException;
+use OCP\HintException;
 use OC\User\Session;
 use OCP\App\IAppManager;
 use OCP\AppFramework\Controller;

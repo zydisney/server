@@ -31,7 +31,7 @@
 
 namespace OCA\FederatedFileSharing\Controller;
 
-use OC\HintException;
+use OCP\HintException;
 use OCA\FederatedFileSharing\AddressHandler;
 use OCA\FederatedFileSharing\FederatedShareProvider;
 use OCP\AppFramework\Controller;

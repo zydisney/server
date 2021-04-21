@@ -24,7 +24,7 @@
 
 namespace OCA\Federation\Controller;
 
-use OC\HintException;
+use OCP\HintException;
 use OCA\Federation\TrustedServers;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\DataResponse;

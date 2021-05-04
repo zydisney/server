@@ -291,6 +291,7 @@ class ObjectStoreStorage extends \OC\Files\Storage\Common {
 	}
 
 	public function fopen($path, $mode) {
+		\OC::$server->getLogger()->error('ObjectStoreStorage::fopen(' . $path . ', ' . $mode . ')', ['app' => 'debug-s3-chunked-upload']);
 		$path = $this->normalizePath($path);
 
 		if (strrpos($path, '.') !== false) {
@@ -310,6 +311,7 @@ class ObjectStoreStorage extends \OC\Files\Storage\Common {
 					}
 
 					try {
+						\OC::$server->getLogger()->error('IObjectStore::readObject(' . $this->getURN($stat['fileid']) . ')', ['app' => 'debug-s3-chunked-upload']);
 						return $this->objectStore->readObject($this->getURN($stat['fileid']));
 					} catch (NotFoundException $e) {
 						$this->logger->logException($e, [
@@ -468,6 +470,7 @@ class ObjectStoreStorage extends \OC\Files\Storage\Common {
 		$stat['etag'] = $this->getETag($path);
 
 		$exists = $this->getCache()->inCache($path);
+		\OC::$server->getLogger()->error("ObjectStoreStorage::writeStream(${path}) exists:" . ($exists ? 'true' : 'false') , ['app' => 'debug-s3-chunked-upload']);
 		$uploadPath = $exists ? $path : $path . '.part';
 
 		if ($exists) {
@@ -477,6 +480,7 @@ class ObjectStoreStorage extends \OC\Files\Storage\Common {
 		}
 
 		$urn = $this->getURN($fileId);
+		\OC::$server->getLogger()->error("ObjectStoreStorage::writeObject($urn)" , ['app' => 'debug-s3-chunked-upload']);
 		try {
 			//upload to object storage
 			if ($size === null) {

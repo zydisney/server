@@ -1151,6 +1151,9 @@ class View {
 			$run = $this->runHooks($hooks, $path);
 			/** @var \OC\Files\Storage\Storage $storage */
 			[$storage, $internalPath] = Filesystem::resolvePath($absolutePath . $postFix);
+			if ($operation === 'fopen') {
+				\OC::$server->getLogger()->error('View::fopen storage:' . $storage->getId() . ' internalPath:' . $internalPath, ['app' => 'debug-s3-chunked-upload']);
+			}
 			if ($run and $storage) {
 				if (in_array('write', $hooks) || in_array('delete', $hooks)) {
 					try {

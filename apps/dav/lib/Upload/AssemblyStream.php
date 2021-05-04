@@ -292,6 +292,7 @@ class AssemblyStream implements \Icewind\Streams\File {
 	 * @return resource
 	 */
 	private function getStream(IFile $node) {
+		\OC::$server->getLogger()->error("AssemblyStream::getStream() nodes:". count($this->nodes) . " current:$this->currentNode", ['app' => 'debug-s3-chunked-upload']);
 		$data = $node->get();
 		if (is_resource($data)) {
 			return $data;

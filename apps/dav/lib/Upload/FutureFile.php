@@ -65,6 +65,10 @@ class FutureFile implements \Sabre\DAV\IFile {
 	 */
 	public function get() {
 		$nodes = $this->root->getChildren();
+		\OC::$server->getLogger()->error("FutureFile::get for " . $this->root->getName(), ['app' => 'debug-s3-chunked-upload']);
+		foreach ($nodes as $node) {
+			\OC::$server->getLogger()->error("FutureFile::get wrap " . $node->getName(), ['app' => 'debug-s3-chunked-upload']);
+		}
 		return AssemblyStream::wrap($nodes);
 	}
 

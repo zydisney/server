@@ -431,6 +431,7 @@ class File extends Node implements IFile {
 				throw new NotFound();
 			}
 			try {
+				\OC::$server->getLogger()->error('Connector\\Sabre\\File::get() path:' . $this->fileView->getAbsolutePath($this->path) , ['app' => 'debug-s3-chunked-upload']);
 				$res = $this->fileView->fopen(ltrim($this->path, '/'), 'rb');
 			} catch (\Exception $e) {
 				$this->convertToSabreException($e);

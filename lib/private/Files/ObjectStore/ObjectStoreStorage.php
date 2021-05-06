@@ -40,6 +40,7 @@ use OCP\Files\Cache\ICacheEntry;
 use OCP\Files\FileInfo;
 use OCP\Files\NotFoundException;
 use OCP\Files\ObjectStore\IObjectStore;
+use OCP\Files\ObjectStore\IObjectStoreMultiPartUpload;
 use OCP\Files\Storage\IStorage;
 
 class ObjectStoreStorage extends \OC\Files\Storage\Common {
@@ -86,7 +87,6 @@ class ObjectStoreStorage extends \OC\Files\Storage\Common {
 
 	public function mkdir($path) {
 		$path = $this->normalizePath($path);
-
 		if ($this->file_exists($path)) {
 			return false;
 		}
@@ -123,6 +123,18 @@ class ObjectStoreStorage extends \OC\Files\Storage\Common {
 			$data['storage_mtime'] = $mTime;
 			$data['etag'] = $this->getETag($path);
 			$this->getCache()->put($path, $data);
+			// CreateMultipartUpload
+			if (strpos($path, 'uploads/') === 0 && $this->objectStore instanceof IObjectStoreMultiPartUpload) {
+				$multipartPath = $path . '/.multipart';
+				$multipartFileId = $this->getCache()->put($multipartPath, [
+					'mimetype' => 'application/octet-stream',
+					'size' => 0,
+					'mtime' => $mTime,
+					'storage_mtime' => $mTime,
+					'etag' => $this->getETag($multipartPath)
+				]);
+				$this->objectStore->initiateMultipartUpload($this->getURN($multipartFileId));
+			}
 			return true;
 		}
 	}
@@ -470,6 +482,18 @@ class ObjectStoreStorage extends \OC\Files\Storage\Common {
 		$exists = $this->getCache()->inCache($path);
 		$uploadPath = $exists ? $path : $path . '.part';
 
+		// UploadPart
+		// FIXME: This should be moved to the chunking plugin
+		if ($this->objectStore instanceof IObjectStoreMultiPartUpload && strpos($path, 'uploads/') === 0) {
+			$fileId = $this->getCache()->put($path, $stat);
+			$urn = $this->getURN($this->getCache()->getId(dirname($path) . '/.multipart'));
+			$partId = (int)(basename($path));
+			$size = (int)$_SERVER['CONTENT_LENGTH'];
+			// FIXME: Find a proper way to store the upload id in case we are using the multipart upload
+			$uploadId = \OC::$server->getMemCacheFactory()->createDistributed('s3')->get('uploadId-' . $urn);
+			$this->objectStore->uploadMultipartPart($urn, $uploadId, $partId, $stream, $size);
+			return $size;
+		}
 		if ($exists) {
 			$fileId = $stat['fileid'];
 		} else {
@@ -536,6 +560,40 @@ class ObjectStoreStorage extends \OC\Files\Storage\Common {
 		if ($sourceStorage->instanceOfStorage(ObjectStoreStorage::class)) {
 			/** @var ObjectStoreStorage $sourceStorage */
 			if ($sourceStorage->getObjectStore()->getStorageId() === $this->getObjectStore()->getStorageId()) {
+				// CompleteMultipartUpload
+				// FIXME: This should be moved to the chunking plugin
+				if (strpos($sourceInternalPath, 'uploads/') === 0 && basename($sourceInternalPath) === '.file') {
+					if ($this->objectStore instanceof IObjectStoreMultiPartUpload) {
+						$multipartPath = dirname($sourceInternalPath) . '/.multipart';
+						$chunkPath = dirname($multipartPath);
+						$urn = $this->getURN($this->getCache()->getId($multipartPath));
+						// FIXME: Find a proper way to store the upload id in case we are using the multipart upload
+						// FIXME: Find a proper way to store the upload part responses
+						$uploadId = \OC::$server->getMemCacheFactory()->createDistributed('s3')->get('uploadId-' . $urn);
+						$uploads = \OC::$server->getMemCacheFactory()->createDistributed('s3')->get('uploads-' . $urn);
+						ksort($uploads);
+						try {
+							$result = $this->objectStore->completeMultipartUpload($urn, $uploadId, array_values($uploads));
+						} catch (\Throwable $e) {
+							throw $e;
+						} finally {
+							\OC::$server->getMemCacheFactory()->createDistributed('s3')->remove('uploads-' . $urn);
+							\OC::$server->getMemCacheFactory()->createDistributed('s3')->remove('uploadId-' . $urn);
+						}
+						$this->rename($multipartPath, $targetInternalPath);
+						$stat = $this->stat($targetInternalPath);
+						$mimetypeDetector = \OC::$server->getMimeTypeDetector();
+						$mimetype = $mimetypeDetector->detectPath($targetInternalPath);
+						$stat['size'] = (int)$result->get('ContentLength');
+						$stat['mimetype'] = $mimetype;
+						$stat['etag'] = $this->getETag($targetInternalPath);
+						$stat['permissions'] = \OCP\Constants::PERMISSION_ALL - \OCP\Constants::PERMISSION_CREATE;
+						$this->getCache()->put($targetInternalPath, $stat);
+						$this->unlink($chunkPath);
+
+						return true;
+					}
+				}
 				$sourceEntry = $sourceStorage->getCache()->get($sourceInternalPath);
 				$this->copyInner($sourceEntry, $targetInternalPath);
 				return true;

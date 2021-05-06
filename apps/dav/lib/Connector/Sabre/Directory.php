@@ -38,6 +38,7 @@ use OC\Files\View;
 use OCA\DAV\Connector\Sabre\Exception\FileLocked;
 use OCA\DAV\Connector\Sabre\Exception\Forbidden;
 use OCA\DAV\Connector\Sabre\Exception\InvalidPath;
+use OCA\DAV\Upload\FutureFile;
 use OCP\Files\FileInfo;
 use OCP\Files\ForbiddenException;
 use OCP\Files\InvalidPathException;
@@ -375,6 +376,13 @@ class Directory extends \OCA\DAV\Connector\Sabre\Node implements \Sabre\DAV\ICol
 	 * @throws \Sabre\DAV\Exception\Forbidden
 	 */
 	public function moveInto($targetName, $fullSourcePath, INode $sourceNode) {
+		if ($sourceNode instanceof FutureFile) {
+			$sourceView = new View('');
+			// will use copyFromStorage then
+			$sourceView->copy($sourceView->getAbsolutePath($sourceNode->getPath()), $this->fileView->getAbsolutePath($targetName));
+			return true;
+		}
+
 		if (!$sourceNode instanceof Node) {
 			// it's a file of another kind, like FutureFile
 			if ($sourceNode instanceof IFile) {

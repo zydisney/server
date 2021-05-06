@@ -26,6 +26,7 @@
 
 namespace OCA\DAV\Upload;
 
+use OC\Files\View;
 use OCA\DAV\Connector\Sabre\Directory;
 use OCA\DAV\Connector\Sabre\Exception\Forbidden;
 use Sabre\DAV\Exception\BadRequest;

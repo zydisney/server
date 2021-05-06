@@ -40,7 +40,9 @@ use OCP\Files\Cache\ICacheEntry;
 use OCP\Files\FileInfo;
 use OCP\Files\NotFoundException;
 use OCP\Files\ObjectStore\IObjectStore;
+use OCP\Files\ObjectStore\IObjectStoreMultiPartUpload;
 use OCP\Files\Storage\IStorage;
+use function GuzzleHttp\Promise\all;
 
 class ObjectStoreStorage extends \OC\Files\Storage\Common {
 	use CopyDirectory;
@@ -86,7 +88,6 @@ class ObjectStoreStorage extends \OC\Files\Storage\Common {
 
 	public function mkdir($path) {
 		$path = $this->normalizePath($path);
-
 		if ($this->file_exists($path)) {
 			return false;
 		}
@@ -536,6 +537,40 @@ class ObjectStoreStorage extends \OC\Files\Storage\Common {
 		if ($sourceStorage->instanceOfStorage(ObjectStoreStorage::class)) {
 			/** @var ObjectStoreStorage $sourceStorage */
 			if ($sourceStorage->getObjectStore()->getStorageId() === $this->getObjectStore()->getStorageId()) {
+				if (strpos($sourceInternalPath, 'uploads/') === 0 && substr($sourceInternalPath, -strlen('/.file')) === '/.file') {
+					if ($this->objectStore instanceof IObjectStoreMultiPartUpload) {
+						$this->touch($targetInternalPath);
+						$urn = $this->getURN($this->getCache()->getId($targetInternalPath));
+						$uploadId = $this->objectStore->initiateMultipartUpload($urn);
+
+						$folderContents = $this->getCache()->getFolderContents(dirname($sourceInternalPath));
+						$partNumber = 1;
+						$results = [];
+						$async = false; // FIXME: In case of switching to async part copy, make sure to batch the requests
+						foreach ($folderContents as $chunkFile) {
+							// FIXME: Part number must be positive integer between 1 and 10,000 so we need to be careful for cases where the number of chunks exceeds 10000
+							$results[] = $this->objectStore->uploadMultipartPartCopy($this->getURN($chunkFile->getId()), $urn, $partNumber++, $uploadId, $async);
+						}
+						if ($async) {
+							$results = \GuzzleHttp\Promise\Utils::all($results)->wait();
+						}
+						$uploadParts = array_map(function($result, $partNumber) {
+							return [
+								'ETag' => $result->get('CopyPartResult')['ETag'],
+								'PartNumber' => $partNumber+1,
+							];
+						}, $results, array_keys($results));
+						$result = $this->objectStore->completeMultipartUpload($urn, $uploadId, $uploadParts);
+						$stat = $this->stat($targetInternalPath);
+						$mimetypeDetector = \OC::$server->getMimeTypeDetector();
+						$mimetype = $mimetypeDetector->detectPath($targetInternalPath);
+						$stat['size'] = (int)$result->get('ContentLength');
+						$stat['mimetype'] = $mimetype;
+						$stat['etag'] = $this->getETag($targetInternalPath);
+ 						$this->getCache()->put($targetInternalPath, $stat);
+						return true;
+					}
+				}
 				$sourceEntry = $sourceStorage->getCache()->get($sourceInternalPath);
 				$this->copyInner($sourceEntry, $targetInternalPath);
 				return true;

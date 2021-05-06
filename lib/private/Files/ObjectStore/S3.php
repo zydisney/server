@@ -24,9 +24,11 @@
 
 namespace OC\Files\ObjectStore;
 
+use Icewind\Streams\CallbackWrapper;
 use OCP\Files\ObjectStore\IObjectStore;
+use OCP\Files\ObjectStore\IObjectStoreMultiPartUpload;
 
-class S3 implements IObjectStore {
+class S3 implements IObjectStore, IObjectStoreMultiPartUpload {
 	use S3ConnectionTrait;
 	use S3ObjectTrait;
 
@@ -40,5 +42,62 @@ class S3 implements IObjectStore {
 	 */
 	public function getStorageId() {
 		return $this->id;
+	}
+
+	public function initiateMultipartUpload(string $urn): string {
+		$upload = $this->getConnection()->createMultipartUpload([
+			'Bucket' => $this->bucket,
+			'Key' => $urn,
+		]);
+		$uploadId = $upload->get('UploadId');
+		\OC::$server->getMemCacheFactory()->createDistributed('s3')->set('uploadId-' . $urn, $uploadId);
+		return $uploadId;
+	}
+
+	public function uploadMultipartPart(string $urn, string $uploadId, $stream, $size) {
+		$cache = \OC::$server->getMemCacheFactory()->createDistributed('s3');
+		$part = $cache->get('partNumber-' . $urn) ?? 0;
+		$part++;
+		\OC::$server->getMemCacheFactory()->createDistributed('s3')->set('partNumber-' . $urn, $part);
+		$count = 0;
+		$countStream = CallbackWrapper::wrap($stream, function ($read) use (&$count) {
+			$count += $read;
+		});
+		$this->getConnection()->uploadPart([
+			'Body' => $countStream,
+			'Bucket' => $this->bucket,
+			'Key' => $urn,
+			'ContentLength' => $size,
+			'PartNumber' => $part,
+			'UploadId' => $uploadId,
+		]);
+
+	}
+
+	public function completeMultipartUpload(string $urn, string $uploadId, array $result) {
+		$this->getConnection()->completeMultipartUpload([
+			'Bucket' => $this->bucket,
+			'Key' => $urn,
+			'UploadId' => $uploadId,
+			'MultipartUpload' => [ 'Parts' => $result ],
+		]);
+		return $this->getConnection()->headObject([
+			'Bucket' => $this->bucket,
+			'Key' => $urn,
+		]);
+	}
+
+	public function uploadMultipartPartCopy(string $sourceUrn, string $targetUrn, int $partNumber, string $uploadId, $async = false) {
+		$args = [
+			'Bucket' => $this->bucket,
+			'CopySource' => $this->bucket . '/' . $sourceUrn,
+			'Key' => $targetUrn,
+			'PartNumber' => $partNumber,
+			'UploadId' => $uploadId,
+		];
+		if ($async) {
+			return $this->getConnection()->uploadPartCopyAsync($args);
+		}
+		return $this->getConnection()->uploadPartCopy($args);
 	}
 }

@@ -131,6 +131,7 @@ class TransferOwnership extends Command {
 
 		$this->sourceUser = $sourceUserObject->getUID();
 		$this->destinationUser = $destinationUserObject->getUID();
+		$destinationUid = $this->destinationUser;
 		$sourcePathOption = ltrim($input->getOption('path'), '/');
 		$this->sourcePath = rtrim($this->sourceUser . '/files/' . $sourcePathOption, '/');
 

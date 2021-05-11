@@ -25,6 +25,8 @@ use Icewind\Streams\Wrapper;
 use Icewind\Streams\CallbackWrapper;
 use OC\Files\ObjectStore\S3;
 
+use Aws\S3\S3Client;
+use Aws\S3\Exception\S3MultipartUploadException;
 
 class MultiPartUploadS3 extends S3 {
 	public function writeObject($urn, $stream, string $mimetype = null) {
@@ -97,21 +99,30 @@ class S3Test extends ObjectStoreTest {
 		$this->assertEquals(substr($data, 210, 100), fread($read, 100));
 	}
 
-	public function testEmptyUpload() {
+	function assertNoUpload($objectUrn) {
+		$s3 = $this->getInstance();
+		$s3client = $s3->getConnection();
+		$uploads = $s3client->listMultipartUploads([
+			'Bucket' => $s3->getBucket(),
+			'Prefix' => $objectUrn,
+		]);
+		//fwrite(STDERR, print_r($uploads, TRUE));
+		$this->assertArrayNotHasKey('Uploads', $uploads);
+	}
+
+	public function testMultipartException() {
+        //$this->expectException(S3MultipartUploadException::class);
 		$s3 = $this->getInstance();
 
-		$emptyStream = fopen('php://memory', 'w+');
-		$count = 0;
-		$countStream = CallbackWrapper::wrap($emptyStream, function ($read) use (&$count) {
-			$count += $read;
-		});
-		$this->assertEquals($count, 0);
-		$this->assertTrue(feof($countStream));
+		// create an empty stream and check that it fits to the
+		// pre-conditions in writeObject for the empty case
+		$stupidStream = fopen("php://memory", "r");
+		fwrite($stupidStream, NULL);
 
-		$s3->writeObject('emptyuploadtest', $emptyString);
-		
-		$result = $s3->readObject('emptyuploadtest');
-		$this->assertEquals('', stream_get_contents($result));
+		$s3->writeObject('stupidstream', $stupidStream);
+
+		// this method intendedly produces an S3Exception
+		$this->assertNoUpload('stupidstream');
 	}
 
 }

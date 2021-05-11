@@ -81,6 +81,8 @@ class S3Test extends ObjectStoreTest {
 		$result = $s3->readObject('multiparttest');
 
 		$this->assertEquals(file_get_contents(__FILE__), stream_get_contents($result));
+
+		$s3->deleteObject('multiparttest');
 	}
 
 	public function testSeek() {
@@ -97,6 +99,8 @@ class S3Test extends ObjectStoreTest {
 
 		fseek($read, 100, SEEK_CUR);
 		$this->assertEquals(substr($data, 210, 100), fread($read, 100));
+
+		$instance->deleteObject('seek');
 	}
 
 	function assertNoUpload($objectUrn) {
@@ -110,19 +114,21 @@ class S3Test extends ObjectStoreTest {
 		$this->assertArrayNotHasKey('Uploads', $uploads);
 	}
 
-	public function testMultipartException() {
+	public function testEmptyUpload() {
         //$this->expectException(S3MultipartUploadException::class);
 		$s3 = $this->getInstance();
 
 		// create an empty stream and check that it fits to the
 		// pre-conditions in writeObject for the empty case
-		$stupidStream = fopen("php://memory", "r");
-		fwrite($stupidStream, NULL);
+		$emptyStream = fopen("php://memory", "r");
+		fwrite($emptyStream, NULL);
 
-		$s3->writeObject('stupidstream', $stupidStream);
+		$s3->writeObject('emptystream', $emptyStream);
 
 		// this method intendedly produces an S3Exception
-		$this->assertNoUpload('stupidstream');
-	}
+		$this->assertNoUpload('emptystream');
+		$this->assertTrue($s3->objectExists('emptystream'));
 
+		$s3->deleteObject('emptystream');
+	}
 }

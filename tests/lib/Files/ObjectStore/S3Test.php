@@ -22,7 +22,9 @@
 namespace Test\Files\ObjectStore;
 
 use Icewind\Streams\Wrapper;
+use Icewind\Streams\CallbackWrapper;
 use OC\Files\ObjectStore\S3;
+
 
 class MultiPartUploadS3 extends S3 {
 	public function writeObject($urn, $stream, string $mimetype = null) {
@@ -94,4 +96,22 @@ class S3Test extends ObjectStoreTest {
 		fseek($read, 100, SEEK_CUR);
 		$this->assertEquals(substr($data, 210, 100), fread($read, 100));
 	}
+
+	public function testEmptyUpload() {
+		$s3 = $this->getInstance();
+
+		$emptyStream = fopen('php://memory', 'w+');
+		$count = 0;
+		$countStream = CallbackWrapper::wrap($emptyStream, function ($read) use (&$count) {
+			$count += $read;
+		});
+		$this->assertEquals($count, 0);
+		$this->assertTrue(feof($countStream));
+
+		$s3->writeObject('emptyuploadtest', $emptyString);
+		
+		$result = $s3->readObject('emptyuploadtest');
+		$this->assertEquals('', stream_get_contents($result));
+	}
+
 }

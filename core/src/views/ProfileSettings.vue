@@ -23,22 +23,23 @@
 <template>
 	<AppSettingsDialog :open="open" @update:open="$emit('update:open', !!$event)" :show-navigation="true">
 		<AppSettingsSection title="Personal info">
-			<DisplayName />
-			<ul>
-				<li>Avatar</li>
-				<li>Name</li>
-				<li>Location</li>
-				<li>Biography</li>
-			</ul>
+			<div class="personal-info">
+				<div class="personal-info__inputs">
+					<DisplayName />
+					<DisplayName />
+					<DisplayName />
+					<DisplayName />
+				</div>
+				<Avatar class="personal-info__avatar" />
+			</div>
 		</AppSettingsSection>
 		<AppSettingsSection title="Contact info">
-			<Email />
-			<ul>
-				<li>E-Mail</li>
-				<li>Phone</li>
-				<li>Website</li>
-				<li>Twitter</li>
-			</ul>
+			<div class="personal-info__inputs">
+				<Email />
+				<DisplayName />
+				<DisplayName />
+				<DisplayName />
+			</div>
 		</AppSettingsSection>
 	</AppSettingsDialog>
 </template>
@@ -47,6 +48,7 @@
 import AppSettingsDialog from '@nextcloud/vue/dist/Components/AppSettingsDialog'
 import AppSettingsSection from '@nextcloud/vue/dist/Components/AppSettingsSection'
 
+import Avatar from '../components/profile/Avatar'
 import DisplayName from '../components/profile/DisplayName'
 import Email from '../components/profile/Email'
 export default {
@@ -55,6 +57,7 @@ export default {
 		AppSettingsDialog,
 		AppSettingsSection,
 
+		Avatar,
 		DisplayName,
 		Email,
 	},
@@ -71,6 +74,18 @@ export default {
 ::v-deep .app-settings__content {
 	width: 90vw;
 	max-width: 900px;
+}
+
+.personal-info {
+	display: flex;
+	flex-wrap: wrap;
+	&__inputs,
+	&__avatar {
+		flex-basis: 200px;
+		min-width: 200px;
+		flex-grow: 1;
+		margin-right: 20px;
+	}
 }
 
 </style>

@@ -22,34 +22,47 @@
 
 <template>
 	<div>
-		<form id="emailform" class="section">
-			<h3>
-				<label for="email">Email</label>
-				<a href="#" class="federation-menu" aria-label="Change privacy level of email">
-						<span class="icon-federation-menu icon-contacts-dark">
-							<span class="icon-triangle-s"></span>
-						</span>
-					<div class="federationScopeMenu popovermenu bubble menu menu-center"></div></a>
-			</h3>
-			<div class="verify hidden">
-				<img id="verify-email" title="Verify" data-status="0" src="
-				/core/img/actions/verify.svg">
-			</div>
-			<input type="email" name="email" id="email" value="admin@example.net" placeholder="Your email address" autocomplete="on" autocapitalize="none" autocorrect="off">
-			<span class="icon-checkmark hidden"></span>
-			<span class="icon-error hidden"></span>
-			<em>For password reset and notifications</em>
+		<form id="emailform">
+			<PropertyHeader :title="t('core', 'E-mail')" property="email" />
+			<input
+				type="email"
+				class="icon-checkmark"
+				name="email"
+				id="email"
+				value="admin@example.net"
+				placeholder="Your email address"
+				autocomplete="on"
+				autocapitalize="none"
+				autocorrect="off" />
+			<p class="hint">
+				<em>{{ t('core', 'For password reset and notifications') }}</em>
+			</p>
 			<input type="hidden" id="emailscope" value="v2-federated">
 		</form>
+		<input type="email" placeholder="user@example.com" />
+		<input type="email" placeholder="user@example.com" />
+		<input type="email" placeholder="user@example.com" />
+		<button class="icon-add">
+			{{ t('core', 'Add additional email address') }}
+		</button>
 	</div>
 </template>
 
 <script>
+import PropertyHeader from './PropertyHeader'
+
 export default {
-	name: 'Email'
+	name: 'Email',
+	components: { PropertyHeader },
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+input[type="email"] {
+	width: 100%;
 
+	.icon-checkmark {
+		background-position: calc(100% - 13px);
+	}
+}
 </style>

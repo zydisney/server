@@ -198,6 +198,13 @@ class AccountManager implements IAccountManager {
 			self::VISIBILITY_PUBLIC,
 		];
 
+		$noLookupServer = [
+			self::PROPERTY_LOCATION,
+			self::PROPERTY_ORANISATION,
+			self::PROPERTY_ROLE,
+			self::PROPERTY_ABOUT
+		];
+
 		// validate and convert scope values
 		foreach ($data as $propertyName => $propertyData) {
 			if (isset($propertyData['scope'])) {

@@ -22,29 +22,29 @@
 
 <template>
 	<div>
-		<form id="displaynameform" class="section">
-			<h3>
-				<label for="displayname">Full name</label>
-				<a href="#" class="federation-menu" aria-label="Change privacy level of full name">
-						<span class="icon-federation-menu icon-contacts-dark">
-							<span class="icon-triangle-s"></span>
-						</span>
-					<div class="federationScopeMenu popovermenu bubble menu menu-center"></div></a>
-			</h3>
-			<input type="text" id="displayname" name="displayname" value="admin" autocomplete="on" autocapitalize="none" autocorrect="off">
-			<span class="icon-checkmark hidden"></span>
-			<span class="icon-error hidden"></span>
-			<input type="hidden" id="displaynamescope" value="v2-federated">
-		</form>
+		<PropertyHeader :title="t('core', 'Display name')" property="displayname" />
+		<input id="displayname"
+			type="text"
+			name="displayname"
+			value="admin"
+			autocomplete="on"
+			autocapitalize="none"
+			autocorrect="off">
+		<span class="icon-checkmark" />
+		<span class="icon-error" />
 	</div>
 </template>
 
 <script>
+import PropertyHeader from './PropertyHeader'
 export default {
-	name: 'DisplayName'
+	name: 'DisplayName',
+	components: { PropertyHeader },
 }
 </script>
 
 <style scoped>
-
+input {
+    width: 100%;
+}
 </style>

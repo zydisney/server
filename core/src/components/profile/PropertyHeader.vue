@@ -21,30 +21,50 @@
   -->
 
 <template>
-	<div>
-		<PropertyHeader :title="t('core', 'Phone number')" property="phone" />
-		<input id="displayname"
-			   type="tel"
-			   name="displayname"
-			   value="admin"
-			   autocomplete="on"
-			   autocapitalize="none"
-			   autocorrect="off">
-		<span class="icon-checkmark" />
-		<span class="icon-error" />
-	</div>
+	<h4>
+		<div class="propertywrapper">
+			<span>
+				{{ title }}
+			</span>
+			<img id="verify-email" title="Verify" data-status="0" src="/core/img/actions/verify.svg" />
+		</div>
+		<VisibilityLevel :property="property" value="v2-local" />
+	</h4>
 </template>
 
 <script>
-import PropertyHeader from './PropertyHeader'
+import VisibilityLevel from './VisibilityLevel'
+
 export default {
-	name: 'Phone',
-	components: { PropertyHeader },
+	name: 'PropertyHeader',
+	components: { VisibilityLevel },
+	props: {
+		title: {
+			type: String,
+			required: true,
+		},
+		property: {
+			type: String,
+			required: true,
+		},
+	},
 }
 </script>
 
-<style scoped>
-input {
-	width: 100%;
+<style lang="scss" scoped>
+h4 {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.propertywrapper {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+
+	img {
+		margin-left: 10px;
+	}
 }
 </style>

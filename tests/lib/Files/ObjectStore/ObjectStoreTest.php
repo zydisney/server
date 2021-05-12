@@ -24,107 +24,115 @@ namespace Test\Files\ObjectStore;
 
 use Test\TestCase;
 
-abstract class ObjectStoreTest extends TestCase {
+abstract class ObjectStoreTest extends TestCase
+{
 
-	/**
-	 * @return \OCP\Files\ObjectStore\IObjectStore
-	 */
-	abstract protected function getInstance();
+    /**
+     * @return \OCP\Files\ObjectStore\IObjectStore
+     */
+    abstract protected function getInstance();
 
-	protected function stringToStream($data) {
-		$stream = fopen('php://temp', 'w+');
-		fwrite($stream, $data);
-		rewind($stream);
-		return $stream;
-	}
+    protected function stringToStream($data)
+    {
+        $stream = fopen('php://temp', 'w+');
+        fwrite($stream, $data);
+        rewind($stream);
+        return $stream;
+    }
 
-	public function testWriteRead() {
-		$stream = $this->stringToStream('foobar');
+    public function testWriteRead()
+    {
+        $stream = $this->stringToStream('foobar');
 
-		$instance = $this->getInstance();
+        $instance = $this->getInstance();
 
-		$instance->writeObject('1', $stream);
+        $instance->writeObject('1', $stream);
 
-		$result = $instance->readObject('1');
-		$instance->deleteObject('1');
+        $result = $instance->readObject('1');
+        $instance->deleteObject('1');
 
-		$this->assertEquals('foobar', stream_get_contents($result));
-	}
+        $this->assertEquals('foobar', stream_get_contents($result));
+    }
 
-	public function testDelete() {
-		$stream = $this->stringToStream('foobar');
+    public function testDelete()
+    {
+        $stream = $this->stringToStream('foobar');
 
-		$instance = $this->getInstance();
+        $instance = $this->getInstance();
 
-		$instance->writeObject('2', $stream);
+        $instance->writeObject('2', $stream);
 
-		$instance->deleteObject('2');
+        $instance->deleteObject('2');
 
-		try {
-			// to to read to verify that the object no longer exists
-			$instance->readObject('2');
-			$this->fail();
-		} catch (\Exception $e) {
-			// dummy assert to keep phpunit happy
-			$this->assertEquals(1, 1);
-		}
-	}
+        try {
+            // to to read to verify that the object no longer exists
+            $instance->readObject('2');
+            $this->fail();
+        } catch (\Exception $e) {
+            // dummy assert to keep phpunit happy
+            $this->assertEquals(1, 1);
+        }
+    }
 
-	public function testReadNonExisting() {
-		$instance = $this->getInstance();
+    public function testReadNonExisting()
+    {
+        $instance = $this->getInstance();
 
-		try {
-			$instance->readObject('non-existing');
-			$this->fail();
-		} catch (\Exception $e) {
-			// dummy assert to keep phpunit happy
-			$this->assertEquals(1, 1);
-		}
-	}
+        try {
+            $instance->readObject('non-existing');
+            $this->fail();
+        } catch (\Exception $e) {
+            // dummy assert to keep phpunit happy
+            $this->assertEquals(1, 1);
+        }
+    }
 
-	public function testDeleteNonExisting() {
-		$instance = $this->getInstance();
+    public function testDeleteNonExisting()
+    {
+        $instance = $this->getInstance();
 
-		try {
-			$instance->deleteObject('non-existing');
-			$this->fail();
-		} catch (\Exception $e) {
-			// dummy assert to keep phpunit happy
-			$this->assertEquals(1, 1);
-		}
-	}
+        try {
+            $instance->deleteObject('non-existing');
+            $this->fail();
+        } catch (\Exception $e) {
+            // dummy assert to keep phpunit happy
+            $this->assertEquals(1, 1);
+        }
+    }
 
-	public function testExists() {
-		$stream = $this->stringToStream('foobar');
+    public function testExists()
+    {
+        $stream = $this->stringToStream('foobar');
 
-		$instance = $this->getInstance();
-		$this->assertFalse($instance->objectExists('2'));
+        $instance = $this->getInstance();
+        $this->assertFalse($instance->objectExists('2'));
 
-		$instance->writeObject('2', $stream);
+        $instance->writeObject('2', $stream);
 
-		$this->assertTrue($instance->objectExists('2'));
+        $this->assertTrue($instance->objectExists('2'));
 
-		$instance->deleteObject('2');
+        $instance->deleteObject('2');
 
-		$this->assertFalse($instance->objectExists('2'));
-	}
+        $this->assertFalse($instance->objectExists('2'));
+    }
 
-	public function testCopy() {
-		$stream = $this->stringToStream('foobar');
+    public function testCopy()
+    {
+        $stream = $this->stringToStream('foobar');
 
-		$instance = $this->getInstance();
+        $instance = $this->getInstance();
 
-		$instance->writeObject('source', $stream);
+        $instance->writeObject('source', $stream);
 
-		$this->assertFalse($instance->objectExists('target'));
+        $this->assertFalse($instance->objectExists('target'));
 
-		$instance->copyObject('source', 'target');
+        $instance->copyObject('source', 'target');
 
-		$this->assertTrue($instance->objectExists('target'));
+        $this->assertTrue($instance->objectExists('target'));
 
-		$this->assertEquals('foobar', stream_get_contents($instance->readObject('target')));
+        $this->assertEquals('foobar', stream_get_contents($instance->readObject('target')));
 
-		$instance->deleteObject('source');
-		$instance->deleteObject('target');
-	}
+        $instance->deleteObject('source');
+        $instance->deleteObject('target');
+    }
 }

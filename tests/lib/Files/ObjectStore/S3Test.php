@@ -28,107 +28,120 @@ use OC\Files\ObjectStore\S3;
 use Aws\S3\S3Client;
 use Aws\S3\Exception\S3MultipartUploadException;
 
-class MultiPartUploadS3 extends S3 {
-	public function writeObject($urn, $stream, string $mimetype = null) {
-		$this->getConnection()->upload($this->bucket, $urn, $stream, 'private', [
-			'mup_threshold' => 1,
-		]);
-	}
+class MultiPartUploadS3 extends S3
+{
+    public function writeObject($urn, $stream, string $mimetype = null)
+    {
+        $this->getConnection()->upload($this->bucket, $urn, $stream, 'private', [
+            'mup_threshold' => 1,
+        ]);
+    }
 }
 
-class NonSeekableStream extends Wrapper {
-	public static function wrap($source) {
-		$context = stream_context_create([
-			'nonseek' => [
-				'source' => $source,
-			],
-		]);
-		return Wrapper::wrapSource($source, $context, 'nonseek', self::class);
-	}
+class NonSeekableStream extends Wrapper
+{
+    public static function wrap($source)
+    {
+        $context = stream_context_create([
+            'nonseek' => [
+                'source' => $source,
+            ],
+        ]);
+        return Wrapper::wrapSource($source, $context, 'nonseek', self::class);
+    }
 
-	public function dir_opendir($path, $options) {
-		return false;
-	}
+    public function dir_opendir($path, $options)
+    {
+        return false;
+    }
 
-	public function stream_open($path, $mode, $options, &$opened_path) {
-		$this->loadContext('nonseek');
-		return true;
-	}
+    public function stream_open($path, $mode, $options, &$opened_path)
+    {
+        $this->loadContext('nonseek');
+        return true;
+    }
 
-	public function stream_seek($offset, $whence = SEEK_SET) {
-		return false;
-	}
+    public function stream_seek($offset, $whence = SEEK_SET)
+    {
+        return false;
+    }
 }
 
 /**
  * @group PRIMARY-s3
  */
-class S3Test extends ObjectStoreTest {
-	protected function getInstance() {
-		$config = \OC::$server->getConfig()->getSystemValue('objectstore');
-		if (!is_array($config) || $config['class'] !== '\\OC\\Files\\ObjectStore\\S3') {
-			$this->markTestSkipped('objectstore not configured for s3');
-		}
+class S3Test extends ObjectStoreTest
+{
+    protected function getInstance()
+    {
+        $config = \OC::$server->getConfig()->getSystemValue('objectstore');
+        if (!is_array($config) || $config['class'] !== '\\OC\\Files\\ObjectStore\\S3') {
+            $this->markTestSkipped('objectstore not configured for s3');
+        }
 
-		return new S3($config['arguments']);
-	}
+        return new S3($config['arguments']);
+    }
 
-	public function testUploadNonSeekable() {
-		$s3 = $this->getInstance();
+    public function testUploadNonSeekable()
+    {
+        $s3 = $this->getInstance();
 
-		$s3->writeObject('multiparttest', NonSeekableStream::wrap(fopen(__FILE__, 'r')));
+        $s3->writeObject('multiparttest', NonSeekableStream::wrap(fopen(__FILE__, 'r')));
 
-		$result = $s3->readObject('multiparttest');
+        $result = $s3->readObject('multiparttest');
 
-		$this->assertEquals(file_get_contents(__FILE__), stream_get_contents($result));
+        $this->assertEquals(file_get_contents(__FILE__), stream_get_contents($result));
 
-		$s3->deleteObject('multiparttest');
-	}
+        $s3->deleteObject('multiparttest');
+    }
 
-	public function testSeek() {
-		$data = file_get_contents(__FILE__);
+    public function testSeek()
+    {
+        $data = file_get_contents(__FILE__);
 
-		$instance = $this->getInstance();
-		$instance->writeObject('seek', $this->stringToStream($data));
+        $instance = $this->getInstance();
+        $instance->writeObject('seek', $this->stringToStream($data));
 
-		$read = $instance->readObject('seek');
-		$this->assertEquals(substr($data, 0, 100), fread($read, 100));
+        $read = $instance->readObject('seek');
+        $this->assertEquals(substr($data, 0, 100), fread($read, 100));
 
-		fseek($read, 10);
-		$this->assertEquals(substr($data, 10, 100), fread($read, 100));
+        fseek($read, 10);
+        $this->assertEquals(substr($data, 10, 100), fread($read, 100));
 
-		fseek($read, 100, SEEK_CUR);
-		$this->assertEquals(substr($data, 210, 100), fread($read, 100));
+        fseek($read, 100, SEEK_CUR);
+        $this->assertEquals(substr($data, 210, 100), fread($read, 100));
 
-		$instance->deleteObject('seek');
-	}
+        $instance->deleteObject('seek');
+    }
 
-	function assertNoUpload($objectUrn) {
-		$s3 = $this->getInstance();
-		$s3client = $s3->getConnection();
-		$uploads = $s3client->listMultipartUploads([
-			'Bucket' => $s3->getBucket(),
-			'Prefix' => $objectUrn,
-		]);
-		//fwrite(STDERR, print_r($uploads, TRUE));
-		$this->assertArrayNotHasKey('Uploads', $uploads);
-	}
+    public function assertNoUpload($objectUrn)
+    {
+        $s3 = $this->getInstance();
+        $s3client = $s3->getConnection();
+        $uploads = $s3client->listMultipartUploads([
+            'Bucket' => $s3->getBucket(),
+            'Prefix' => $objectUrn,
+        ]);
+        //fwrite(STDERR, print_r($uploads, TRUE));
+        $this->assertArrayNotHasKey('Uploads', $uploads);
+    }
 
-	public function testEmptyUpload() {
+    public function testEmptyUpload()
+    {
         //$this->expectException(S3MultipartUploadException::class);
-		$s3 = $this->getInstance();
+        $s3 = $this->getInstance();
 
-		// create an empty stream and check that it fits to the
-		// pre-conditions in writeObject for the empty case
-		$emptyStream = fopen("php://memory", "r");
-		fwrite($emptyStream, NULL);
+        // create an empty stream and check that it fits to the
+        // pre-conditions in writeObject for the empty case
+        $emptyStream = fopen("php://memory", "r");
+        fwrite($emptyStream, null);
 
-		$s3->writeObject('emptystream', $emptyStream);
+        $s3->writeObject('emptystream', $emptyStream);
 
-		// this method intendedly produces an S3Exception
-		$this->assertNoUpload('emptystream');
-		$this->assertTrue($s3->objectExists('emptystream'));
+        // this method intendedly produces an S3Exception
+        $this->assertNoUpload('emptystream');
+        $this->assertTrue($s3->objectExists('emptystream'));
 
-		$s3->deleteObject('emptystream');
-	}
+        $s3->deleteObject('emptystream');
+    }
 }

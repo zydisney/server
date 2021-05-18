@@ -132,7 +132,7 @@ abstract class ObjectStoreTest extends TestCase
 
         $this->assertEquals('foobar', stream_get_contents($instance->readObject('target')));
 
-        $instance->deleteObject('source');
-        $instance->deleteObject('target');
+        //$instance->deleteObject('source');
+        //$instance->deleteObject('target');
     }
 }

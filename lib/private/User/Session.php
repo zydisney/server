@@ -681,6 +681,8 @@ class Session implements IUserSession, Emitter {
 			return false;
 		}
 		$name = isset($request->server['HTTP_USER_AGENT']) ? $request->server['HTTP_USER_AGENT'] : 'unknown browser';
+		$e = new \Exception('createSessionToken');
+		$this->logger->logException($e, ['app' => 'createuser_debug', 'level' => 2]);
 		try {
 			$sessionId = $this->session->getId();
 			$pwd = $this->getPassword($password);

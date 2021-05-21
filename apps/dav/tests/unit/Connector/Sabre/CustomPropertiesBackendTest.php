@@ -37,6 +37,7 @@ namespace OCA\DAV\Tests\unit\Connector\Sabre;
 
 use OCA\DAV\Connector\Sabre\Directory;
 use OCA\DAV\Connector\Sabre\File;
+use OCA\DAV\Service\CustomPropertiesService;
 use OCP\IUser;
 use Sabre\DAV\Tree;
 
@@ -88,6 +89,7 @@ class CustomPropertiesBackendTest extends \Test\TestCase {
 		$this->plugin = new \OCA\DAV\DAV\CustomPropertiesBackend(
 			$this->tree,
 			\OC::$server->getDatabaseConnection(),
+			$this->createMock(CustomPropertiesService::class),
 			$this->user
 		);
 	}

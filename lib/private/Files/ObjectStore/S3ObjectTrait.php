@@ -101,8 +101,6 @@ trait S3ObjectTrait
         });
 
         $s3params = [
-            'bucket' => $this->bucket,
-            'key' => $urn,
             'part_size' => $this->uploadPartSize,
             'params' => [
                 'ContentType' => $mimetype
@@ -111,25 +109,14 @@ trait S3ObjectTrait
 
         // maybe, we should also use ObjectUploader here in the future
         // it does direct uploads for small files < 5MB and multipart otherwise
-        // $uploader = new ObjectUploader($this->getConnection(), $this->bucket, $urn, $countStream, 'private', $s3params);
-        $uploader = new MultipartUploader($this->getConnection(), $countStream, $s3params);
+        $uploader = new ObjectUploader($this->getConnection(), $this->bucket, $urn, $countStream, 'private', $s3params);
 
         try {
             $uploader->upload();
         } catch (S3MultipartUploadException $e) {
             // if anything goes wrong with multipart, make sure that you don´t poison s3 bucket with fragments
             $this->getConnection()->abortMultipartUpload($uploader->getState()->getId());
-            
-            if ($count === 0 && feof($countStream)) {
-                // This is an empty file case, so just touch it
-                $s3params = [
-                    'params' => $this->getSseKmsPutParameters(),
-                ];
-                $uploader = new ObjectUploader($this->getConnection(), $this->bucket, $urn, '', 'private', $s3params);
-                $uploader->upload();
-            } else {
-                throw $e;
-            }
+            throw $e;
         } finally {
             // this handles [S3] fclose(): supplied resource is not a valid stream resource #23373
             // see https://stackoverflow.com/questions/11247507/fclose-18-is-not-a-valid-stream-resource/11247555

@@ -38,6 +38,7 @@ use GuzzleHttp\Promise;
 use GuzzleHttp\Promise\RejectedPromise;
 use OCP\ILogger;
 
+
 trait S3ConnectionTrait {
 	/** @var array */
 	protected $params;
@@ -60,8 +61,8 @@ trait S3ConnectionTrait {
 	/** @var string */
 	protected $sseKmsKeyId;
 
-	/** @var string */
-	protected $sseKmsBucketKeyId;
+	/** @var bool */
+	protected $sseUseBucketKey;
 
 	protected $test;
 
@@ -70,25 +71,24 @@ trait S3ConnectionTrait {
 			throw new \Exception('Bucket has to be configured.');
 		}
 
-		$this->id = 'amazon::'.$params['bucket'];
+		$this->id = 'amazon::' . $params['bucket'];
 
 		$this->test = isset($params['test']);
 		$this->bucket = $params['bucket'];
 		$this->timeout = !isset($params['timeout']) ? 15 : $params['timeout'];
 		$this->uploadPartSize = !isset($params['uploadPartSize']) ? 524288000 : $params['uploadPartSize'];
 		$params['region'] = empty($params['region']) ? 'eu-west-1' : $params['region'];
-		$params['hostname'] = empty($params['hostname']) ? 's3.'.$params['region'].'.amazonaws.com' : $params['hostname'];
+		$params['hostname'] = empty($params['hostname']) ? 's3.' . $params['region'] . '.amazonaws.com' : $params['hostname'];
 		if (!isset($params['port']) || $params['port'] === '') {
 			$params['port'] = (isset($params['use_ssl']) && $params['use_ssl'] === false) ? 80 : 443;
 		}
 		$params['autocreate'] = !isset($params['autocreate']) ? false : $params['autocreate'];
 
 		// this avoid at least the hash lookups for each read/weite operation
-		if (isset($params['ssekmsbucketkeyid'])) {
-			$this->sseKmsBucketKeyId = $params['ssekmsbucketkeyid'];
-		} elseif (isset($params['ssekmskeyid'])) {
+		if (isset($params['ssekmskeyid'])) {
 			$this->sseKmsKeyId = $params['ssekmskeyid'];
 		}
+		$this->sseUseBucketKey = (isset($params['sseusebucketkey'])) ? $params['sseusebucketkey'] : false;
 
 		$this->params = $params;
 	}
@@ -105,7 +105,7 @@ trait S3ConnectionTrait {
 	 * @return array with encryption parameters
 	 */
 	public function getSseKmsPutParameters(): array {
-		if (!empty($this->sseKmsBucketKeyId)) {
+		if ($this->sseUseBucketKey) {
 			return [
 				'ServerSideEncryption' => 'aws:kms',
 				'BucketKeyEnabled' => true,
@@ -129,8 +129,7 @@ trait S3ConnectionTrait {
 	 * @return array with encryption parameters
 	 */
 	public function getSseKmsGetParameters(): array {
-		if (!empty($this->sseKmsBucketKeyId) || 
-	 	    !empty($this->sseKmsKeyId)) {
+		if (($this->sseUseBucketKey) || !empty($this->sseKmsKeyId)) {
 			return [
 				'ServerSideEncryption' => 'aws:kms',
 			];
@@ -138,7 +137,6 @@ trait S3ConnectionTrait {
 			return [];
 		}
 	}
-
 
 	/**
 	 * Create the required bucket
@@ -182,18 +180,17 @@ trait S3ConnectionTrait {
 			$encrypt_state = $this->connection->getBucketEncryption([
 				'Bucket' => $this->bucket,
 			]);
-			return;
 		} catch (S3Exception $e) {
 			try {
 				$logger->info('Bucket key for "'.$this->bucket.'" is not set - adding it.', ['app' => 'objectstore']);
 				$this->connection->putBucketEncryption([
-					'Bucket' => $this->bucket ,
+					'Bucket' => $this->bucket,
 					'ServerSideEncryptionConfiguration' => [
 						'Rules' => [
 							[
 								'ApplyServerSideEncryptionByDefault' => [
-									'KMSMasterKeyID' => $this->sseKmsBucketKeyId,
 									'SSEAlgorithm' => 'aws:kms',
+									'KMSMasterKeyID' => $this->sseKmsKeyId,
 								],
 								'BucketKeyEnabled' => true,
 							],
@@ -249,6 +246,7 @@ trait S3ConnectionTrait {
 			'use_path_style_endpoint' => isset($this->params['use_path_style']) ? $this->params['use_path_style'] : false,
 			'signature_provider' => \Aws\or_chain([self::class, 'legacySignatureProvider'], ClientResolver::_default_signature_provider()),
 			'csm' => false,
+			'debug'   => true,
 		];
 		if (isset($this->params['proxy'])) {
 			$options['request.options'] = ['proxy' => $this->params['proxy']];
@@ -260,7 +258,7 @@ trait S3ConnectionTrait {
 
 		if (!$this->connection::isBucketDnsCompatible($this->bucket)) {
 			$logger = \OC::$server->getLogger();
-			$logger->debug('Bucket "'.$this->bucket.'" This bucket name is not dns compatible, it may contain invalid characters.',
+			$logger->debug('Bucket "' . $this->bucket.'" This bucket name is not dns compatible, it may contain invalid characters.',
 					['app' => 'objectstore']);
 		}
 
@@ -268,7 +266,7 @@ trait S3ConnectionTrait {
 			$this->createNewBucket();
 		}
 
-		if ($this->params['autocreate'] && isset($this->params['ssekmsbucketkeyid'])) {
+		if ($this->params['autocreate'] && $this->sseUseBucketKey) {
 			$this->checkOrPutBucketKey();
 		}
 

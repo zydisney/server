@@ -50,6 +50,7 @@ use OCP\Files\IMimeTypeLoader;
 use OCP\Files\Search\ISearchQuery;
 use OCP\Files\Storage\IStorage;
 use OCP\IDBConnection;
+use Psr\Log\LoggerInterface;
 
 /**
  * Metadata cache for a storage
@@ -286,6 +287,16 @@ class Cache implements ICache {
 		[$values, $extensionValues] = $this->normalizeData($data);
 		$values['storage'] = $this->getNumericStorageId();
 
+		if (isset($values['checksum'])) {
+			/** @var LoggerInterface $logger */
+			$logger = \OC::$server->get(LoggerInterface::class);
+			$logger->debug('Inserting checksum to: "{checksum}" for path {path}', [
+				'app' => 'debug_checksum',
+				'checksum' => $values['checksum'],
+				'path' => $values['path'],
+			]);
+		}
+
 		try {
 			$builder = $this->connection->getQueryBuilder();
 			$builder->insert('filecache');
@@ -346,6 +357,16 @@ class Cache implements ICache {
 		}
 
 		[$values, $extensionValues] = $this->normalizeData($data);
+
+		if (isset($values['checksum'])) {
+			/** @var LoggerInterface $logger */
+			$logger = \OC::$server->get(LoggerInterface::class);
+			$logger->debug('Updating stored checksum to: "{checksum}" for path {file}', [
+				'app' => 'debug_checksum',
+				'checksum' => $values['checksum'],
+				'file' => $values['path'] ?? $this->getPathById($id),
+			]);
+		}
 
 		if (count($values)) {
 			$query = $this->getQueryBuilder();

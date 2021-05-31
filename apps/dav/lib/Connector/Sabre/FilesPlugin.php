@@ -41,6 +41,7 @@ use OCP\Files\StorageNotAvailableException;
 use OCP\IConfig;
 use OCP\IPreview;
 use OCP\IRequest;
+use Psr\Log\LoggerInterface;
 use Sabre\DAV\Exception\Forbidden;
 use Sabre\DAV\Exception\NotFound;
 use Sabre\DAV\IFile;
@@ -277,8 +278,20 @@ class FilesPlugin extends ServerPlugin {
 		if ($node instanceof \OCA\DAV\Connector\Sabre\File) {
 			//Add OC-Checksum header
 			$checksum = $node->getChecksum();
+			/** @var LoggerInterface $logger */
+			$logger = \OC::$server->get(LoggerInterface::class);
 			if ($checksum !== null && $checksum !== '') {
+				$logger->debug('Sending checksum response: "{checksum}" for path {path}', [
+					'app' => 'debug_checksum',
+					'checksum' => $checksum,
+					'path' => $node->getPath(),
+				]);
 				$response->addHeader('OC-Checksum', $checksum);
+			} else {
+				$logger->debug('Sending no checksum header, as no value is set for path {path}', [
+					'app' => 'debug_checksum',
+					'path' => $node->getPath(),
+				]);
 			}
 		}
 	}

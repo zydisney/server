@@ -64,6 +64,7 @@ use OCP\ILogger;
 use OCP\Lock\ILockingProvider;
 use OCP\Lock\LockedException;
 use OCP\Share\IManager;
+use Psr\Log\LoggerInterface;
 use Sabre\DAV\Exception;
 use Sabre\DAV\Exception\BadRequest;
 use Sabre\DAV\Exception\Forbidden;
@@ -342,13 +343,29 @@ class File extends Node implements IFile {
 
 			$this->refreshInfo();
 
+			/** @var LoggerInterface $logger */
+			$logger = \OC::$server->get(LoggerInterface::class);
 			if (isset($this->request->server['HTTP_OC_CHECKSUM'])) {
 				$checksum = trim($this->request->server['HTTP_OC_CHECKSUM']);
+				$logger->debug('Received checksum in header: "{checksum}", path {target}', [
+					'app' => 'debug_checksum',
+					'checksum' => $checksum,
+					'target' => $this->path,
+				]);
 				$this->fileView->putFileInfo($this->path, ['checksum' => $checksum]);
 				$this->refreshInfo();
 			} elseif ($this->getChecksum() !== null && $this->getChecksum() !== '') {
+				$logger->debug('No checksum received in header, resetting existing value, path {target}', [
+					'app' => 'debug_checksum',
+					'target' => $this->path,
+				]);
 				$this->fileView->putFileInfo($this->path, ['checksum' => '']);
 				$this->refreshInfo();
+			} else {
+				$logger->debug('No checksum received in header, none was set either. path {target}', [
+					'app' => 'debug_checksum',
+					'target' => $this->path,
+				]);
 			}
 		} catch (StorageNotAvailableException $e) {
 			throw new ServiceUnavailable("Failed to check file size: " . $e->getMessage(), 0, $e);
@@ -606,11 +623,27 @@ class File extends Node implements IFile {
 				// FIXME: should call refreshInfo but can't because $this->path is not the of the final file
 				$info = $this->fileView->getFileInfo($targetPath);
 
+				/** @var LoggerInterface $logger */
+				$logger = \OC::$server->get(LoggerInterface::class);
 				if (isset($this->request->server['HTTP_OC_CHECKSUM'])) {
 					$checksum = trim($this->request->server['HTTP_OC_CHECKSUM']);
+					$logger->debug('(Chunk) Received checksum in header: "{checksum}", path {target}', [
+						'app' => 'debug_checksum',
+						'checksum' => $checksum,
+						'target' => $targetPath,
+					]);
 					$this->fileView->putFileInfo($targetPath, ['checksum' => $checksum]);
 				} elseif ($info->getChecksum() !== null && $info->getChecksum() !== '') {
+					$logger->debug('(Chunk) No checksum received in header, resetting existing value, path {target}', [
+						'app' => 'debug_checksum',
+						'target' => $targetPath,
+					]);
 					$this->fileView->putFileInfo($this->path, ['checksum' => '']);
+				} else {
+					$logger->debug('(Chunk) No checksum received in header, none was set either. path {target}', [
+						'app' => 'debug_checksum',
+						'target' => $targetPath,
+					]);
 				}
 
 				$this->fileView->unlockFile($targetPath, ILockingProvider::LOCK_SHARED);

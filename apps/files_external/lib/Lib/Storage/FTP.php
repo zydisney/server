@@ -41,7 +41,7 @@ class FTP extends Common {
 	private $port;
 	private $utf8Mode;
 
-	/** @var FtpConnection */
+	/** @var FtpConnection|null */
 	private $connection;
 
 	public function __construct($params) {
@@ -64,6 +64,10 @@ class FTP extends Common {
 		} else {
 			throw new \Exception('Creating ' . self::class . ' storage failed, required parameters not set');
 		}
+	}
+
+	public function __destruct() {
+		$this->connection = null;
 	}
 
 	protected function getConnection(): FtpConnection {

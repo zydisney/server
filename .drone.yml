@@ -2079,6 +2079,7 @@ trigger:
     - stable*
   event:
     - push
+    - pull_request
 
 ---
 kind: pipeline
@@ -2111,6 +2112,7 @@ trigger:
     - stable*
   event:
     - push
+    - pull_request
 
 ---
 kind: pipeline

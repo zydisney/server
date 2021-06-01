@@ -192,7 +192,6 @@ trait S3ConnectionTrait {
 									'SSEAlgorithm' => 'aws:kms',
 									'KMSMasterKeyID' => $this->sseKmsKeyId,
 								],
-								'BucketKeyEnabled' => true,
 							],
 						],
 					],
@@ -246,7 +245,7 @@ trait S3ConnectionTrait {
 			'use_path_style_endpoint' => isset($this->params['use_path_style']) ? $this->params['use_path_style'] : false,
 			'signature_provider' => \Aws\or_chain([self::class, 'legacySignatureProvider'], ClientResolver::_default_signature_provider()),
 			'csm' => false,
-			'debug'   => true,
+			// 'debug'   => true, // to debug S3 communication
 		];
 		if (isset($this->params['proxy'])) {
 			$options['request.options'] = ['proxy' => $this->params['proxy']];

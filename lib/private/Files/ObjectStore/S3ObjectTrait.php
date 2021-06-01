@@ -28,6 +28,7 @@ use Aws\S3\Exception\S3MultipartUploadException;
 use Aws\S3\MultipartUploader;
 use Aws\S3\ObjectUploader;
 use Aws\S3\S3Client;
+use GuzzleHttp\Psr7\CachingStream;
 use Icewind\Streams\CallbackWrapper;
 use OC\Files\Stream\SeekableHttpStream;
 
@@ -95,36 +96,62 @@ trait S3ObjectTrait
      */
     public function writeObject($urn, $stream, string $mimetype = null)
     {
+        //$streamMeta = stream_get_meta_data($stream);
+        //if ($streamMeta['seekable']) {
+            // the ObjectUploader requires the stream seekable for objects <5MB 
+            // to copute checksum before uploading
+            //$stream = new CachingStream($stream);
+        //}
         $count = 0;
         $countStream = CallbackWrapper::wrap($stream, function ($read) use (&$count) {
             $count += $read;
         });
 
         $s3params = [
+            'bucket' => $this->bucket,
+            'key' => $urn,
             'part_size' => $this->uploadPartSize,
             'params' => [
                 'ContentType' => $mimetype
             ] + $this->getSseKmsPutParameters(),
         ];
 
+        // ObjectUplader version
+        //$s3params = [
+        //    'part_size' => $this->uploadPartSize,
+        //    'params' => [
+        //        'ContentType' => $mimetype
+        //    ] + $this->getSseKmsPutParameters(),
+        //];
+
         // maybe, we should also use ObjectUploader here in the future
         // it does direct uploads for small files < 5MB and multipart otherwise
-        $uploader = new ObjectUploader($this->getConnection(), $this->bucket, $urn, $countStream, 'private', $s3params);
+        //$uploader = new ObjectUploader($this->getConnection(), $this->bucket, $urn, $countStream, 'private', $s3params);
+        $uploader = new MultipartUploader($this->getConnection(), $countStream, $s3params);
 
         try {
             $uploader->upload();
         } catch (S3MultipartUploadException $e) {
-            // if anything goes wrong with multipart, make sure that you don´t poison s3 bucket with fragments
+            // if anything goes wrong with multipart, make sure that you don´t poison and 
+            // slow down s3 bucket with fragment management
             $this->getConnection()->abortMultipartUpload($uploader->getState()->getId());
-            throw $e;
-        } finally {
+
+			// This is an empty file so just touch it then
+			if ($count === 0 && feof($countStream)) {
+				$uploader = new ObjectUploader($this->getConnection(), $this->bucket, $urn, '');
+				$uploader->upload();
+			} else {
+				throw $e;
+			}
+        } 
+        //finally {
             // this handles [S3] fclose(): supplied resource is not a valid stream resource #23373
             // see https://stackoverflow.com/questions/11247507/fclose-18-is-not-a-valid-stream-resource/11247555
             // which also recommends the solution
-            if (is_resource($countStream)) {
-                fclose($countStream);
-            }
-        }
+        //    if (is_resource($stream)) {
+        //        fclose($stream);
+        //    }
+        //}
     }
 
     /**

@@ -75,7 +75,7 @@ class SchemaWrapper implements ISchemaWrapper {
 	 * @return array
 	 */
 	public function getTableNames(): array {
-		return array_map(function (string $fullName) {
+		return array_map(static function (string $fullName) {
 			$pos = strpos($fullName, '.');
 			if ($pos === false) {
 				return $fullName;

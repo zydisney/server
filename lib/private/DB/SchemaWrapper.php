@@ -81,7 +81,7 @@ class SchemaWrapper implements ISchemaWrapper {
 				return $fullName;
 			}
 
-			return substr($fullName, $pos+1);
+			return substr($fullName, $pos + 1);
 		}, $this->schema->getTableNames());
 	}
 

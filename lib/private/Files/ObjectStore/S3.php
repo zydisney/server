@@ -49,7 +49,7 @@ class S3 implements IObjectStore, IObjectStoreMultiPartUpload {
 		$upload = $this->getConnection()->createMultipartUpload([
 			'Bucket' => $this->bucket,
 			'Key' => $urn,
-		]);
+		] + $this->getSseKmsPutParameters());
 		$uploadId = $upload->get('UploadId');
 		if ($uploadId === null) {
 			throw new Exception('No upload id returned');
@@ -74,7 +74,7 @@ class S3 implements IObjectStore, IObjectStoreMultiPartUpload {
 			'Key' => $urn,
 			'UploadId' => $uploadId,
 			'MultipartUpload' => ['Parts' => $result],
-		]);
+		] + $this->getSseKmsPutParameters());
 		$stat = $this->getConnection()->headObject([
 			'Bucket' => $this->bucket,
 			'Key' => $urn,

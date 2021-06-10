@@ -58,6 +58,7 @@
 
 	<settings>
 		<admin>OCA\DAV\Settings\CalDAVSettings</admin>
+		<personal>OCA\DAV\Settings\AvailabilitySettings</personal>
 	</settings>
 
 	<activity>

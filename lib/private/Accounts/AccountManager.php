@@ -404,7 +404,9 @@ class AccountManager implements IAccountManager {
 			$wasVerified = isset($oldData[$propertyName])
 				&& isset($oldData[$propertyName]['verified'])
 				&& $oldData[$propertyName]['verified'] === self::VERIFIED;
-			if ($property->getValue() !== $oldData[$propertyName]['value']
+			if ((!isset($oldData[$propertyName])
+					|| !isset($oldData[$propertyName]['value'])
+					|| $property->getValue() !== $oldData[$propertyName]['value'])
 				&& ($property->getVerified() !== self::NOT_VERIFIED
 					|| $wasVerified)
 				) {

@@ -403,7 +403,7 @@ class AccountManager implements IAccountManager {
 			} catch (PropertyDoesNotExistException $e) {
 				continue;
 			}
-			$wasVerified =  isset($oldData[$propertyName]['verified']) && $oldData[$propertyName]['verified'] === self::VERIFIED;
+			$wasVerified = isset($oldData[$propertyName]['verified']) && $oldData[$propertyName]['verified'] === self::VERIFIED;
 			if ($property->getValue() !== $oldData[$propertyName]['value']
 				&& ($property->getVerified() !== self::NOT_VERIFIED
 					|| $wasVerified)
@@ -413,7 +413,7 @@ class AccountManager implements IAccountManager {
 		}
 	}
 
-	protected function 	dataArrayToJson(array $accountData): string {
+	protected function dataArrayToJson(array $accountData): string {
 		$jsonData = [];
 		foreach ($accountData as $property => $data) {
 			//$property = $data['name'];

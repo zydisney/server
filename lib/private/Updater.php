@@ -50,6 +50,7 @@ use OCP\ILogger;
 use OCP\Util;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\GenericEvent;
+use Throwable;
 
 /**
  * Class that handles autoupdating of ownCloud
@@ -410,10 +411,9 @@ class Updater extends BasicEmitter {
 
 	/**
 	 * @param array $disabledApps
-	 * @param bool $reenable
-	 * @throws \Exception
+	 * @param bool $reEnable
 	 */
-	private function upgradeAppStoreApps(array $disabledApps, bool $reenable = false): void {
+	private function upgradeAppStoreApps(array $disabledApps, bool $reEnable = false): void {
 		foreach ($disabledApps as $app) {
 			try {
 				$this->emit('\OC\Updater', 'checkAppStoreAppBefore', [$app]);
@@ -422,13 +422,24 @@ class Updater extends BasicEmitter {
 					$this->installer->updateAppstoreApp($app);
 				}
 				$this->emit('\OC\Updater', 'checkAppStoreApp', [$app]);
-
-				if ($reenable) {
-					$ocApp = new \OC_App();
-					$ocApp->enable($app);
-				}
-			} catch (\Exception $ex) {
+			} catch (Throwable $ex) {
 				$this->log->error($ex->getMessage(), [
+					'exception' => $ex,
+				]);
+
+				// Skip the rest
+				continue;
+			}
+
+			if (!$reEnable) {
+				continue;
+			}
+
+			try {
+				$ocApp = new \OC_App();
+				$ocApp->enable($app);
+			} catch (Throwable $ex) {
+				$this->log->warning("Could not re-enable app: " . $ex->getMessage(), [
 					'exception' => $ex,
 				]);
 			}

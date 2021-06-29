@@ -281,6 +281,9 @@ class SCSSCacher {
 	 * @return bool
 	 */
 	private function variablesChanged(): bool {
+		if ($this->config->getSystemValue('debug')) {
+			return true;
+		}
 		$cachedVariables = $this->config->getAppValue('core', 'theming.variables', '');
 		$injectedVariables = $this->getInjectedVariables($cachedVariables);
 		if ($cachedVariables !== md5($injectedVariables)) {

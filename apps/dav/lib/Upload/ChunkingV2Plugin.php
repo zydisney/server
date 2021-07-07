@@ -164,7 +164,7 @@ class ChunkingV2Plugin extends ServerPlugin {
 
 		$sourceNode = $this->server->tree->getNodeForPath($sourcePath);
 		if ($sourceNode instanceof FutureFile) {
-			$sourceNode->delete();
+			$this->uploadFolder->delete();
 		}
 
 		$this->server->emit('afterMove', [$sourcePath, $destination]);

@@ -48,6 +48,7 @@ use OCP\IConfig;
 use OCP\IL10N;
 use OCP\INavigationManager;
 use OCP\IURLGenerator;
+use OCP\Util as OCPUtil;
 
 class ThemingDefaults extends \OC_Defaults {
 
@@ -203,7 +204,7 @@ class ThemingDefaults extends \OC_Defaults {
 		$divider = '';
 		foreach ($links as $link) {
 			if ($link['url'] !== ''
-				&& filter_var($link['url'], FILTER_VALIDATE_URL)
+				&& OCPUtil::isValidUrl($link['url'])
 			) {
 				$legalLinks .= $divider . '<a href="' . $link['url'] . '" class="legal" target="_blank"' .
 					' rel="noreferrer noopener">' . $link['text'] . '</a>';

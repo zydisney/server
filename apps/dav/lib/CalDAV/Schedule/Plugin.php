@@ -34,6 +34,7 @@ use OCA\DAV\CalDAV\CalendarHome;
 use OCA\DAV\Connector\Sabre\DavAclPlugin;
 use OCP\IConfig;
 use Sabre\CalDAV\ICalendar;
+use Sabre\CalDAV\Schedule\Inbox;
 use Sabre\DAV\ICollection;
 use Sabre\DAV\INode;
 use Sabre\DAV\IProperties;
@@ -647,9 +648,9 @@ EOF;
 
 		$newFileName = 'sabredav-'.\Sabre\DAV\UUIDUtil::getUUID().'.ics';
 
-		/** @var INode|ICollection $home */
+		/** @var CalendarHome $home */
 		$home = $this->server->tree->getNodeForPath($homePath);
-		/** @var INode|ICollection $inbox */
+		/** @var Inbox $inbox */
 		$inbox = $this->server->tree->getNodeForPath($inboxPath);
 
 		$currentObject = null;

@@ -31,8 +31,10 @@ namespace OCA\DAV\CalDAV\Schedule;
 use DateTimeZone;
 use OCA\DAV\CalDAV\CalDavBackend;
 use OCA\DAV\CalDAV\CalendarHome;
+use OCA\DAV\Connector\Sabre\DavAclPlugin;
 use OCP\IConfig;
 use Sabre\CalDAV\ICalendar;
+use Sabre\DAV\ICollection;
 use Sabre\DAV\INode;
 use Sabre\DAV\IProperties;
 use Sabre\DAV\PropFind;
@@ -565,9 +567,11 @@ EOF;
 	}
 
 	private function process(ITip\Message $iTipMessage){
+		/** @var DavAclPlugin $aclPlugin */
 		$aclPlugin = $this->server->getPlugin('acl');
 
 		// Local delivery is not available if the ACL plugin is not loaded.
+		//
 		if (!$aclPlugin) {
 			return;
 		}
@@ -643,7 +647,9 @@ EOF;
 
 		$newFileName = 'sabredav-'.\Sabre\DAV\UUIDUtil::getUUID().'.ics';
 
+		/** @var INode|ICollection $home */
 		$home = $this->server->tree->getNodeForPath($homePath);
+		/** @var INode|ICollection $inbox */
 		$inbox = $this->server->tree->getNodeForPath($inboxPath);
 
 		$currentObject = null;

@@ -22,13 +22,14 @@ declare(strict_types=1);
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  */
+
 namespace OCA\Files\Service;
 
 use Closure;
@@ -93,7 +94,8 @@ class OwnershipTransferService {
 							 string $path,
 							 ?OutputInterface $output = null,
 							 bool $move = false,
-							 bool $firstLogin = false): void {
+							 bool $firstLogin = false,
+							 bool $transferIncomingShares = false): void {
 		$output = $output ?? new NullOutput();
 		$sourceUid = $sourceUser->getUID();
 		$destinationUid = $destinationUser->getUID();
@@ -180,6 +182,27 @@ class OwnershipTransferService {
 			$shares,
 			$output
 		);
+
+		// transfer the incoming shares
+		if($transferIncomingShares === true) {
+			$sourceShares = $this->collectIncomingShares(
+				$sourceUid,
+				$output,
+				$view
+			);
+			$destinationShares = $this->collectIncomingShares(
+				$destinationUid,
+				$output,
+				$view
+			);
+			$this->transferIncomingShares(
+				$sourceUid,
+				$destinationUid,
+				$sourceShares,
+				$destinationShares,
+				$output
+			);
+		}
 	}
 
 	private function walkFiles(View $view, $path, Closure $callBack) {
@@ -253,6 +276,7 @@ class OwnershipTransferService {
 
 		$shares = [];
 		$progress = new ProgressBar($output);
+
 		foreach ([IShare::TYPE_GROUP, IShare::TYPE_USER, IShare::TYPE_LINK, IShare::TYPE_REMOTE, IShare::TYPE_ROOM, IShare::TYPE_EMAIL, IShare::TYPE_CIRCLE, IShare::TYPE_DECK] as $shareType) {
 			$offset = 0;
 			while (true) {
@@ -282,6 +306,33 @@ class OwnershipTransferService {
 				$offset += 50;
 			}
 		}
+
+		$progress->finish();
+		$output->writeln('');
+		return $shares;
+	}
+
+	private function collectIncomingShares(string $sourceUid,
+										OutputInterface $output,
+										View $view
+										/* string $path */): array {
+		$output->writeln("Collecting all incoming share information for files and folders of $sourceUid ...");
+
+		$shares = [];
+		$progress = new ProgressBar($output);
+
+		$offset = 0;
+		while (true) {
+			$sharePage = $this->shareManager->getSharedWith($sourceUid, IShare::TYPE_USER, null, 50, $offset);
+			$progress->advance(count($sharePage));
+			if (empty($sharePage)) {
+				break;
+			}
+
+			$shares = array_merge($shares, $sharePage);
+			$offset += 50;
+		}
+
 
 		$progress->finish();
 		$output->writeln('');
@@ -356,4 +407,67 @@ class OwnershipTransferService {
 		$progress->finish();
 		$output->writeln('');
 	}
+
+	private function transferIncomingShares(string $sourceUid,
+								   string $destinationUid,
+								   array $sourceShares,
+								   array $destinationShares,
+								   OutputInterface $output) {
+		$output->writeln("Restoring incoming shares ...");
+		$progress = new ProgressBar($output, count($sourceShares));
+
+		foreach ($sourceShares as $share) {
+			try {
+				if ($share->getShareType() === IShare::TYPE_USER &&
+					$share->getSharedBy() === $destinationUid) {
+					$this->shareManager->deleteShare($share);
+				} else {
+					$sameFileSharedWithDestination = false;
+					$shareDeleted = false;
+					foreach ($destinationShares as $key => $destinationShare) {
+						if ($share->getNodeId() === $destinationShare->getNodeId()) {
+							$sameFileSharedWithDestination = true;
+							if ($destinationShare->getPermissions() < $share->getPermissions()) {
+								array_splice($destinationShares, $key, 1);
+								$this->shareManager->deleteShare($destinationShare);
+								$share->setSharedWith($destinationUid);
+								break;
+							}
+
+							$this->shareManager->deleteShare($share);
+							$shareDeleted = true;
+							break;
+						}
+					}
+
+					if ($sameFileSharedWithDestination === false) {
+						if ($share->getShareOwner() === $destinationUid) {
+							$this->shareManager->deleteShare($share);
+							$shareDeleted = true;
+						} else {
+							$share->setSharedWith($destinationUid);
+						}
+
+					}
+
+					// trigger refetching of the node so that the new owner and mountpoint are taken into account
+					// otherwise the checks on the share update will fail due to the original node not being available in the new user scope
+					$this->userMountCache->clear();
+					if (!$shareDeleted) {
+						$share->setNodeId($share->getNode()->getId());
+						$this->shareManager->updateShare($share);
+					}
+				}
+			} catch (\OCP\Files\NotFoundException $e) {
+				$output->writeln('<error>Share with id ' . $share->getId() . ' points at deleted file, skipping</error>');
+			} catch (\Throwable $e) {
+				$output->writeln('<error>Could not restore share with id ' . $share->getId() . ':' . $e->getTraceAsString() . '</error>');
+			}
+			$progress->advance();
+		}
+		$progress->finish();
+		$output->writeln('');
+	}
+
+	
 }

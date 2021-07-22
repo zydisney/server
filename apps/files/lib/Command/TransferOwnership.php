@@ -31,12 +31,14 @@ declare(strict_types=1);
  * along with this program. If not, see <http://www.gnu.org/licenses/>
  *
  */
+
 namespace OCA\Files\Command;
 
 use OCA\Files\Exception\TransferOwnershipException;
 use OCA\Files\Service\OwnershipTransferService;
 use OCP\IUser;
 use OCP\IUserManager;
+use OCP\IConfig;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -51,11 +53,16 @@ class TransferOwnership extends Command {
 	/** @var OwnershipTransferService */
 	private $transferService;
 
+	/** @var IConfig */
+	private $config;
+
 	public function __construct(IUserManager $userManager,
-								OwnershipTransferService $transferService) {
+								OwnershipTransferService $transferService,
+								IConfig $config) {
 		parent::__construct();
 		$this->userManager = $userManager;
 		$this->transferService = $transferService;
+		$this->config = $config;
 	}
 
 	protected function configure() {
@@ -83,6 +90,11 @@ class TransferOwnership extends Command {
 				null,
 				InputOption::VALUE_NONE,
 				'move data from source user to root directory of destination user, which must be empty'
+			)->addOption(
+				'transfer-incoming-shares',
+				null,
+				InputOption::VALUE_REQUIRED,
+				'transfer incoming shares to destination user'
 		);
 	}
 
@@ -111,12 +123,38 @@ class TransferOwnership extends Command {
 		}
 
 		try {
+			$includeIncomingArgument = $input->getOption('transfer-incoming-shares');
+
+			switch ($includeIncomingArgument) {
+				case '0':
+					$includeIncoming = false;
+					break;
+				case '1':
+					$includeIncoming = true;
+					break;
+				case NULL:
+					$includeIncoming = $this->config->getSystemValue('transferIncomingShares', null);
+					if (gettype($includeIncoming) !== 'boolean' && gettype($includeIncoming) !== 'NULL') {
+						$output->writeln("<error> config.php: 'transfer-incoming-shares': wrong usage. Transfer aborted.</error>");
+						return 1;
+					} else if (gettype($includeIncoming) === 'NULL') {
+						$includeIncoming = false;
+					}
+					break;				
+				default:
+					$output->writeln("<error>Option --transfer-incoming-shares: wrong usage. Transfer aborted.</error>");
+					return 1;
+					break;
+			}
+
 			$this->transferService->transfer(
 				$sourceUserObject,
 				$destinationUserObject,
 				ltrim($input->getOption('path'), '/'),
 				$output,
-				$input->getOption('move') === true
+				$input->getOption('move') === true,
+				false,
+				$includeIncoming
 			);
 		} catch (TransferOwnershipException $e) {
 			$output->writeln("<error>" . $e->getMessage() . "</error>");

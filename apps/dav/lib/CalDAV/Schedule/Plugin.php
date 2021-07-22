@@ -695,7 +695,9 @@ EOF;
 		if ($isNewNode) {
 			/** @var Calendar $calendar */
 			$calendar = $this->server->tree->getNodeForPath($calendarPath);
-			$calendar->createFile($newFileName, $newObject->serialize());
+			/** @var resource $resource */
+			$resource = $newObject->serialize();
+			$calendar->createFile($newFileName, $resource);
 		} else {
 			// If the message was a reply, we may have to inform other
 			// attendees of this attendees status. Therefore we're shooting off

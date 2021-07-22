@@ -184,7 +184,7 @@ class OwnershipTransferService {
 		);
 
 		// transfer the incoming shares
-		if($transferIncomingShares === true) {
+		if ($transferIncomingShares === true) {
 			$sourceShares = $this->collectIncomingShares(
 				$sourceUid,
 				$output,
@@ -447,7 +447,6 @@ class OwnershipTransferService {
 						} else {
 							$share->setSharedWith($destinationUid);
 						}
-
 					}
 
 					// trigger refetching of the node so that the new owner and mountpoint are taken into account
@@ -468,6 +467,4 @@ class OwnershipTransferService {
 		$progress->finish();
 		$output->writeln('');
 	}
-
-	
 }

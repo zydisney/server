@@ -132,15 +132,15 @@ class TransferOwnership extends Command {
 				case '1':
 					$includeIncoming = true;
 					break;
-				case NULL:
+				case null:
 					$includeIncoming = $this->config->getSystemValue('transferIncomingShares', null);
 					if (gettype($includeIncoming) !== 'boolean' && gettype($includeIncoming) !== 'NULL') {
 						$output->writeln("<error> config.php: 'transfer-incoming-shares': wrong usage. Transfer aborted.</error>");
 						return 1;
-					} else if (gettype($includeIncoming) === 'NULL') {
+					} elseif (gettype($includeIncoming) === 'NULL') {
 						$includeIncoming = false;
 					}
-					break;				
+					break;
 				default:
 					$output->writeln("<error>Option --transfer-incoming-shares: wrong usage. Transfer aborted.</error>");
 					return 1;

@@ -33,9 +33,10 @@ use OCA\DAV\CalDAV\CalDavBackend;
 use OCA\DAV\CalDAV\CalendarHome;
 use OCA\DAV\Connector\Sabre\DavAclPlugin;
 use OCP\IConfig;
+use Sabre\CalDAV\Calendar;
+use Sabre\CalDAV\CalendarObject;
 use Sabre\CalDAV\ICalendar;
 use Sabre\CalDAV\Schedule\Inbox;
-use Sabre\DAV\ICollection;
 use Sabre\DAV\INode;
 use Sabre\DAV\IProperties;
 use Sabre\DAV\PropFind;
@@ -567,7 +568,7 @@ EOF;
 		return $email;
 	}
 
-	private function process(ITip\Message $iTipMessage){
+	private function process(ITip\Message $iTipMessage) {
 		/** @var DavAclPlugin $aclPlugin */
 		$aclPlugin = $this->server->getPlugin('acl');
 
@@ -662,6 +663,7 @@ EOF;
 		if ($result) {
 			// There was an existing object, we need to update probably.
 			$objectPath = $homePath.'/'.$result;
+			/** @var CalendarObject $objectNode */
 			$objectNode = $this->server->tree->getNodeForPath($objectPath);
 			$oldICalendarData = $objectNode->get();
 			$currentObject = Reader::read($oldICalendarData);
@@ -691,6 +693,7 @@ EOF;
 		// We may need to look a bit deeper into this later. Supporting ACL
 		// here would be nice.
 		if ($isNewNode) {
+			/** @var Calendar $calendar */
 			$calendar = $this->server->tree->getNodeForPath($calendarPath);
 			$calendar->createFile($newFileName, $newObject->serialize());
 		} else {

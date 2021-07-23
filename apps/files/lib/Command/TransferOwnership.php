@@ -92,9 +92,9 @@ class TransferOwnership extends Command {
 				'move data from source user to root directory of destination user, which must be empty'
 			)->addOption(
 				'transfer-incoming-shares',
-				null,
-				InputOption::VALUE_REQUIRED,
-				'transfer incoming shares to destination user'
+				false,
+				InputOption::VALUE_OPTIONAL,
+				'transfer incoming file shares to destination user. Usage: --transfer-incoming-shares=1 (value required)'
 		);
 	}
 
@@ -132,13 +132,11 @@ class TransferOwnership extends Command {
 				case '1':
 					$includeIncoming = true;
 					break;
-				case null:
-					$includeIncoming = $this->config->getSystemValue('transferIncomingShares', null);
-					if (gettype($includeIncoming) !== 'boolean' && gettype($includeIncoming) !== 'NULL') {
+				case false:
+					$includeIncoming = $this->config->getSystemValue('transferIncomingShares', false);
+					if (gettype($includeIncoming) !== 'boolean') {
 						$output->writeln("<error> config.php: 'transfer-incoming-shares': wrong usage. Transfer aborted.</error>");
 						return 1;
-					} elseif (gettype($includeIncoming) === 'NULL') {
-						$includeIncoming = false;
 					}
 					break;
 				default:

@@ -62,6 +62,7 @@ use OCP\AppFramework\QueryException;
 use OCP\Authentication\IAlternativeLogin;
 use OCP\ILogger;
 use Psr\Log\LoggerInterface;
+use Throwable;
 
 /**
  * This class manages the apps. It allows them to register and integrate in the

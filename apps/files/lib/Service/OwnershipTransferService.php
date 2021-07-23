@@ -314,8 +314,7 @@ class OwnershipTransferService {
 
 	private function collectIncomingShares(string $sourceUid,
 										OutputInterface $output,
-										View $view
-										/* string $path */): array {
+										View $view): array {
 		$output->writeln("Collecting all incoming share information for files and folders of $sourceUid ...");
 
 		$shares = [];

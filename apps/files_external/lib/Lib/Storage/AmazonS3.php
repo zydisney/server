@@ -386,6 +386,7 @@ class AmazonS3 extends \OC\Files\Storage\Common {
 			if ($this->is_dir($path)) {
 				//folders don't really exist
 				$stat['size'] = -1; //unknown
+				// 1. The fact that mtime is always 'now' leads to...
 				$stat['mtime'] = time();
 				$cacheEntry = $this->getCache()->get($path);
 				if ($cacheEntry instanceof CacheEntry && $this->getMountOption('filesystem_check_changes', 1) !== 1) {

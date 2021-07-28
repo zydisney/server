@@ -384,14 +384,14 @@ class AmazonS3 extends \OC\Files\Storage\Common {
 		try {
 			$stat = [];
 			if ($this->is_dir($path)) {
-				//folders don't really exist
-				$stat['size'] = -1; //unknown
-				// 1. The fact that mtime is always 'now' leads to...
-				$stat['mtime'] = time();
 				$cacheEntry = $this->getCache()->get($path);
-				if ($cacheEntry instanceof CacheEntry && $this->getMountOption('filesystem_check_changes', 1) !== 1) {
+				if ($cacheEntry instanceof CacheEntry) {
 					$stat['size'] = $cacheEntry->getSize();
 					$stat['mtime'] = $cacheEntry->getMTime();
+				} else {
+					//folders don't really exist
+					$stat['size'] = -1; //unknown
+					$stat['mtime'] = time();
 				}
 			} else {
 				$stat['size'] = $this->getContentLength($path);

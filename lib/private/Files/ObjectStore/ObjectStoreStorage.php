@@ -704,11 +704,12 @@ class ObjectStoreStorage extends \OC\Files\Storage\Common implements IChunkedFil
 		}
 	}
 
-	private function getUploadCacheKey($urn, $uploadId, $chunkId = null): string {
-		return $urn . '-' . $uploadId . '-' . ($chunkId ? $chunkId . '-' : '');
+	private function getUploadCacheKey($urn, $uploadId, $key = null): string {
+		return $urn . '-' . $uploadId . '-' . ($key ? $key . '-' : '');
 	}
 
 	private function clearCache($urn, $uploadId): void {
-		$this->uploadCache->clear($this->getUploadCacheKey($urn, $uploadId));
+		$this->uploadCache->remove($this->getUploadCacheKey($urn, $uploadId, 'uploadId'));
+		$this->uploadCache->remove($this->getUploadCacheKey($urn, $uploadId, 'parts'));
 	}
 }

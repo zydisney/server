@@ -195,6 +195,7 @@ class File extends Node implements IFile {
 				$this->header('X-Hash-SHA256: ' . $hash);
 			});
 
+			$previousFileSize = $partStorage->filesize($internalPath);
 			if ($partStorage->instanceOfStorage(Storage\IWriteStreamStorage::class)) {
 				$isEOF = false;
 				$wrappedData = CallbackWrapper::wrap($data, null, null, null, null, function ($stream) use (&$isEOF) {
@@ -307,7 +308,7 @@ class File extends Node implements IFile {
 			}
 
 			// since we skipped the view we need to scan and emit the hooks ourselves
-			$storage->getUpdater()->update($internalPath);
+			$storage->getUpdater()->update($internalPath, null, ($count-$previousFileSize));
 
 			try {
 				$this->changeLock(ILockingProvider::LOCK_SHARED);

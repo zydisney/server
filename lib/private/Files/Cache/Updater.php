@@ -139,6 +139,21 @@ class Updater implements IUpdater {
 		$this->propagator->propagateChange($path, $time, $sizeDifference);
 	}
 
+	public function mkdir($path) {
+		if (!$this->enabled or Scanner::isPartialFile($path)) {
+			return;
+		}
+
+		$data = $this->cache->get($path);
+		// upload directories do not require propagation or parent storage mtime update
+		// FIXME: double check on the storage mtime but seems to be only for avoiding rescans
+		if (strpos($path, 'uploads/') === -1) {
+			// no need to update the size here since a new directory is empty by default
+			$this->correctParentStorageMtime($path);
+			$this->propagator->propagateChange($path, $data->getMTime());
+		}
+	}
+
 	/**
 	 * Remove $path from the cache and update the size, etag and mtime of the parent folders
 	 *

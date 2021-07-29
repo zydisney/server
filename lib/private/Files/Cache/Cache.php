@@ -808,6 +808,10 @@ class Cache implements ICache {
 	 * @param array $data (optional) meta data of the folder
 	 */
 	public function correctFolderSize($path, $data = null, $isBackgroundScan = false) {
+		if ($this->storage->instanceOfStorage(\OCP\Files\IHomeStorage::class) && ($path === 'uploads' || strpos($path, 'uploads/') === 0)) {
+			return;
+		}
+
 		$this->calculateFolderSize($path, $data);
 		if ($path !== '') {
 			$parent = dirname($path);

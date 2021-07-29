@@ -119,6 +119,15 @@ class Updater implements IUpdater {
 		if (!$this->enabled or Scanner::isPartialFile($path)) {
 			return;
 		}
+
+		if (
+			$this->storage->instanceOfStorage(\OCP\Files\IHomeStorage::class) && (
+				(strpos($path, 'uploads/') === 0 && $this->cache->get($path)->getName() === '.target')
+				|| \OC::$server->getRequest()->getHeader('X-Chunking-Destination') !== ""
+			)) {
+			return;
+		}
+
 		if (is_null($time)) {
 			$time = time();
 		}
@@ -265,6 +274,9 @@ class Updater implements IUpdater {
 	 * @param string $internalPath
 	 */
 	private function correctParentStorageMtime($internalPath) {
+		if ($this->storage->instanceOfStorage(\OCP\Files\IHomeStorage::class) && ($internalPath === 'uploads' || strpos($internalPath, 'uploads/') === 0)) {
+			return;
+		}
 		$parentId = $this->cache->getParentId($internalPath);
 		$parent = dirname($internalPath);
 		if ($parentId != -1) {

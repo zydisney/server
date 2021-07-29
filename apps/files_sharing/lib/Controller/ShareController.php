@@ -699,6 +699,9 @@ class ShareController extends AuthPublicShareController {
 		$ownerFolder = $this->rootFolder->getUserFolder($share->getShareOwner());
 		$userPath = $userFolder->getRelativePath($userNode->getPath());
 		$ownerPath = $ownerFolder->getRelativePath($node->getPath());
+		if ($this->config->getAppValue('files_sharing', 'download_ip_address_activity', '0') === "1") {
+			$remoteAddress = $this->request->getRemoteAddress();
+		}
 
 		$parameters = [$userPath];
 
@@ -712,8 +715,14 @@ class ShareController extends AuthPublicShareController {
 		} else {
 			if ($node instanceof \OCP\Files\File) {
 				$subject = Downloads::SUBJECT_PUBLIC_SHARED_FILE_DOWNLOADED;
+				if (isset($remoteAddress)) {
+					$parameters[] = $remoteAddress;
+				}
 			} else {
 				$subject = Downloads::SUBJECT_PUBLIC_SHARED_FOLDER_DOWNLOADED;
+				if (isset($remoteAddress)) {
+					$parameters[] = $remoteAddress;
+				}
 			}
 		}
 

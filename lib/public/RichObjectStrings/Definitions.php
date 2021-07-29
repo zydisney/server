@@ -511,6 +511,25 @@ class Definitions {
 				],
 			],
 		],
+		'remote-address' => [
+			'author' => 'Nextcloud',
+			'app' => 'files_sharing',
+			'since' => '23.0.0',
+			'parameters' => [
+				'id' => [
+					'since' => '23.0.0',
+					'required' => true,
+					'description' => 'The IP-address that is used to access Nextcloud.',
+					'example' => '192.168.178.10',
+				],
+				'name' => [
+					'since' => '23.0.0',
+					'required' => true,
+					'description' => 'The IP-address that is used to access Nextcloud.',
+					'example' => '192.168.178.10',
+				],
+			],
+		],
 		'systemtag' => [
 			'author' => 'Nextcloud',
 			'app' => 'core',

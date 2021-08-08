@@ -701,6 +701,19 @@ class ShareController extends AuthPublicShareController {
 		$ownerPath = $ownerFolder->getRelativePath($node->getPath());
 		if ($this->config->getAppValue('files_sharing', 'download_ip_address_activity', '0') === "1") {
 			$remoteAddress = $this->request->getRemoteAddress();
+			// Anonymize the IP-address
+			// From https://github.com/symfony/symfony/blob/e43725f5572c10be58f38dbb9073959ffcff4f27/src/Symfony/Component/HttpFoundation/IpUtils.php#L167-L177
+			$packedAddress = inet_pton($remoteAddress);
+			if (4 === \strlen($packedAddress)) {
+				$mask = '255.255.255.0';
+			} elseif ($remoteAddress === inet_ntop($packedAddress & inet_pton('::ffff:ffff:ffff'))) {
+				$mask = '::ffff:ffff:ff00';
+			} elseif ($remoteAddress === inet_ntop($packedAddress & inet_pton('::ffff:ffff'))) {
+				$mask = '::ffff:ff00';
+			} else {
+				$mask = 'ffff:ffff:ffff:ffff:0000:0000:0000:0000';
+			}
+			$remoteAddress = inet_ntop($packedAddress & inet_pton($mask));
 		}
 
 		$parameters = [$userPath];

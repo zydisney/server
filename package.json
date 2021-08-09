@@ -50,7 +50,7 @@
     "core-js": "^3.8.3",
     "css-vars-ponyfill": "^2.4.5",
     "davclient.js": "git+https://github.com/owncloud/davclient.js.git#0.2.1",
-    "debounce": "^1.2.0",
+    "debounce": "^1.2.1",
     "dompurify": "^2.2.9",
     "escape-html": "^1.0.3",
     "handlebars": "^4.7.7",
@@ -90,7 +90,7 @@
     "webdav": "^3.6.2"
   },
   "devDependencies": {
-    "@babel/core": "^7.12.10",
+    "@babel/core": "^7.12.17",
     "@babel/plugin-proposal-class-properties": "^7.12.13",
     "@babel/plugin-syntax-dynamic-import": "^7.8.3",
     "@babel/preset-env": "^7.12.17",
